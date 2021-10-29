@@ -7,8 +7,8 @@ public class Sprite extends Rectangle {
     Sprite(int x, int y, int w, int h, String tipo, Color color){
         super(w, h, color);
         TIPO=tipo;
-        setX(x);
-        setY(y);
+        setTranslateX(x);
+        setTranslateY(y);
     }
     void moverIzquierda(){
         setTranslateX(getTranslateX()-5);
@@ -16,9 +16,7 @@ public class Sprite extends Rectangle {
     void moverDerecha(){
         setTranslateX(getTranslateX()+5);
     }
-    void moverAbajo(){
-        setTranslateY(getTranslateY()+5);
-    }
+    void moverAbajo(){setTranslateY(getTranslateY()+5);}
     void moverArriba(){
         setTranslateY(getTranslateY()-5);
     }

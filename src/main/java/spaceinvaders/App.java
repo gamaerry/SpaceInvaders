@@ -12,7 +12,6 @@ public class App extends Application {
         escenario.setScene(escena);
         escenario.show();
     }
-
     public static void main(String[] args) {
         launch();
     }
