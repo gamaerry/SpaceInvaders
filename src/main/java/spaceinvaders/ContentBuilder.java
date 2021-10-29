@@ -14,10 +14,16 @@ public class ContentBuilder {
     final static Sprite jugador=new Sprite(300-20,720-50,40,40,"jugador", Color.BLUE);
     static final EventHandler<KeyEvent> controles= event -> {
         switch(event.getCode()){
-            case A:
+            case LEFT:
                 jugador.moverIzquierda();
                 break;
-            case D:
+            case UP:
+                jugador.moverArriba();
+                break;
+            case DOWN:
+                jugador.moverAbajo();
+                break;
+            case RIGHT:
                 jugador.moverDerecha();
                 break;
             case SPACE:
@@ -45,7 +51,7 @@ public class ContentBuilder {
         }
     }
     static void actualizar() {
-        tiempo+=0.016;
+        tiempo+=0.010;
         sprites().forEach(s->{
             switch (s.TIPO){
                 case "disparoenemigo":
@@ -56,6 +62,7 @@ public class ContentBuilder {
                     }
                     break;
                 case "disparojugador":
+                    s.moverArriba();
                     sprites().stream().filter(sprite->sprite.TIPO.equals("enemigo")).forEach(enemigo->{
                         if(s.getBoundsInParent().intersects(enemigo.getBoundsInParent())){
                             enemigo.muerto=true;
@@ -64,18 +71,13 @@ public class ContentBuilder {
                     });
                     break;
                 case "enemigo":
-                   if(tiempo>2)
-                       if(Math.random()<0.3)
-                           disparar(s);
+                   if(tiempo>2&&Math.random()<0.3) disparar(s);
                    break;
 
 
             }
         });
-        raiz.getChildren().removeIf(sprite->{
-            Sprite s=(Sprite) sprite;
-            return s.muerto;
-        });
+        raiz.getChildren().removeIf(sprite-> ((Sprite) sprite).muerto);
         if(tiempo>2){
             tiempo=0;
         }
