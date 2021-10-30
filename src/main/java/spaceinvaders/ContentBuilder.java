@@ -29,6 +29,18 @@ public class ContentBuilder {
             case SPACE:
                 disparar(jugador);
                 break;
+            case W:
+                jugador.direccion='w';
+                break;
+            case S:
+                jugador.direccion='s';
+                break;
+            case A:
+                jugador.direccion='a';
+                break;
+            case D:
+                jugador.direccion='d';
+                break;
         }
     };
     static Parent createContent() {
@@ -62,7 +74,20 @@ public class ContentBuilder {
                     }
                     break;
                 case "disparojugador":
-                    s.moverArriba();
+                    switch(jugador.direccion){
+                        case 'w':
+                            s.moverArriba();
+                        break;
+                        case 's':
+                            s.moverAbajo();
+                            break;
+                        case 'd':
+                            s.moverDerecha();
+                            break;
+                        case 'a':
+                            s.moverIzquierda();
+                            break;
+                    }
                     sprites().stream().filter(sprite->sprite.TIPO.equals("enemigo")).forEach(enemigo->{
                         if(s.getBoundsInParent().intersects(enemigo.getBoundsInParent())){
                             enemigo.muerto=true;
@@ -78,9 +103,9 @@ public class ContentBuilder {
             }
         });
         raiz.getChildren().removeIf(sprite-> ((Sprite) sprite).muerto);
-        if(tiempo>2){
-            tiempo=0;
-        }
+        raiz.getChildren().removeIf(sprite-> ((Sprite) sprite).getTranslateX()<0||((Sprite) sprite).getTranslateX()>600||((Sprite) sprite).getTranslateY()<0||((Sprite) sprite).getTranslateX()>720);
+
+        if(tiempo>2) tiempo=0;
     }
     static List<Sprite> sprites(){
         return raiz.getChildren()
@@ -93,8 +118,8 @@ public class ContentBuilder {
         Sprite disparo=new Sprite(
                 (int) sujeto.getTranslateX()+20,
                 (int) sujeto.getTranslateY(),
-                5,
-                20,
+                sujeto.direccion=='w'||sujeto.direccion=='s'?5:20,
+                sujeto.direccion=='w'||sujeto.direccion=='s'?20:5,
                 "disparo"+sujeto.TIPO,
                 Color.BLACK);
         raiz.getChildren().add(disparo);
