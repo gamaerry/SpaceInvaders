@@ -1,19 +1,48 @@
 package spaceinvaders;
+
 import javafx.animation.AnimationTimer;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ContentBuilder {
-    static double tiempo=0;
-    final static Pane raiz=new Pane();
-    final static Sprite jugador=new Sprite(300-20,720-50,40,40,"jugador", Color.BLUE);
-    static final EventHandler<KeyEvent> controles= event -> {
-        switch(event.getCode()){
+    static double tiempo = 0;
+    /**
+     * Raiz de tipo Pane en donde se coloca todo
+     * que será regresado al método main
+     */
+    final static Pane raiz = new Pane();
+    /**
+     * En realidad todos los nodos son Retangle
+     * (un tipo particular de Shape)
+     */
+    final static ObservableList<Node> nodos = raiz.getChildren();
+    /**
+     * El jugador es del tipo ShooterSprite
+     * un tipo particular de Sprite
+     */
+    final static ShooterSprite jugador = new ShooterSprite(
+            300 - 20,
+            720 - 50,
+            40,
+            40,
+            "jugador",
+            Color.BLUE);
+    /**
+     * El jugador no necesita ser actualizado con el tiempo
+     * a diferencia de los disparos y los enemigos,
+     * en cambio se define el siguiente manejador de eventos
+     * para la escena en el método main.
+     */
+    final static EventHandler<KeyEvent> controles = event -> {
+        switch (event.getCode()) {
             case LEFT:
                 jugador.moverIzquierda();
                 break;
@@ -27,57 +56,71 @@ public class ContentBuilder {
                 jugador.moverDerecha();
                 break;
             case SPACE:
-                disparar(jugador);
+                jugador.disparar();
                 break;
             case W:
-                jugador.direccion='w';
+                jugador.direccion = 'w';
                 break;
             case S:
-                jugador.direccion='s';
+                jugador.direccion = 's';
                 break;
             case A:
-                jugador.direccion='a';
+                jugador.direccion = 'a';
                 break;
             case D:
-                jugador.direccion='d';
+                jugador.direccion = 'd';
                 break;
         }
     };
-    static Parent createContent() {
-        AnimationTimer temporizador= new AnimationTimer() {
+
+    /**
+     * Este método contiene el flujo principal del juego,
+     * llamando los métodos necesarios para su funcionamiento
+     *
+     * @return Regresa el Parent "Panel" en donde se coloca todo
+     */
+    static Parent mainContent() {
+        AnimationTimer temporizador = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 actualizar();
             }
         };
-        raiz.setPrefSize(600,720);
-        raiz.getChildren().add(jugador);
+        raiz.setPrefSize(600, 720);
+        nodos.add(jugador);
         temporizador.start();
         siguienteNivel();
         return raiz;
     }
+
+    /**
+     * Este método crea a los enemigos y los coloca cada 100 pixeles
+     * empezando por el 90 (recordar que el width es de 600 pixeles)
+     */
     static void siguienteNivel() {
         for (int i = 0; i < 5; i++) {
-            Sprite enemigo= new Sprite(90+i*100,150, 30, 30 , "enemigo",Color.RED);
-            raiz.getChildren().add(enemigo);
+            ShooterSprite enemigo = new ShooterSprite(90 + i * 100, 150, 30, 30, "enemigo", Color.RED);
+            nodos.add(enemigo);
         }
     }
+
+    /**
+     * Este método actualiza el juego con el tiempo
+     */
     static void actualizar() {
-        tiempo+=0.010;
-        sprites().forEach(s->{
-            switch (s.TIPO){
+        tiempo += 0.016;
+        sprites().forEach(s -> {
+            switch (s.TIPO) {
                 case "disparoenemigo":
                     s.moverAbajo();
-                    if(s.getBoundsInParent().intersects(jugador.getBoundsInParent())){
-                        jugador.muerto=true;
-                        s.muerto=true;
-                    }
+                    if (s.getBoundsInParent().intersects(jugador.getBoundsInParent()))
+                        jugador.muerto = s.muerto = true;
                     break;
                 case "disparojugador":
-                    switch(jugador.direccion){
+                    switch (jugador.direccion) {
                         case 'w':
                             s.moverArriba();
-                        break;
+                            break;
                         case 's':
                             s.moverAbajo();
                             break;
@@ -88,40 +131,29 @@ public class ContentBuilder {
                             s.moverIzquierda();
                             break;
                     }
-                    sprites().stream().filter(sprite->sprite.TIPO.equals("enemigo")).forEach(enemigo->{
-                        if(s.getBoundsInParent().intersects(enemigo.getBoundsInParent())){
-                            enemigo.muerto=true;
-                            s.muerto=true;
-                        }
+                    sprites().stream().filter(sprite -> sprite.TIPO.equals("enemigo")).forEach(enemigo -> {
+                        if (s.getBoundsInParent().intersects(enemigo.getBoundsInParent()))
+                            enemigo.muerto = s.muerto = true;
                     });
                     break;
                 case "enemigo":
-                   if(tiempo>2&&Math.random()<0.3) disparar(s);
-                   break;
-
-
+                    if (tiempo > 2 && Math.random() < 0.3) ((ShooterSprite) s).disparar();
+                    break;
             }
         });
-        raiz.getChildren().removeIf(sprite-> ((Sprite) sprite).muerto);
-        raiz.getChildren().removeIf(sprite-> ((Sprite) sprite).getTranslateX()<0||((Sprite) sprite).getTranslateX()>600||((Sprite) sprite).getTranslateY()<0||((Sprite) sprite).getTranslateX()>720);
-
-        if(tiempo>2) tiempo=0;
+        nodos.removeIf(sprite -> ((Sprite) sprite).muerto);
+        if (tiempo > 2) tiempo = 0;
     }
-    static List<Sprite> sprites(){
-        return raiz.getChildren()
-                .stream()
-                .map(n->(Sprite)n)
-                .collect(Collectors.toList());
 
-    }
-    static void disparar(Sprite sujeto) {
-        Sprite disparo=new Sprite(
-                (int) sujeto.getTranslateX()+20,
-                (int) sujeto.getTranslateY(),
-                sujeto.direccion=='w'||sujeto.direccion=='s'?5:20,
-                sujeto.direccion=='w'||sujeto.direccion=='s'?20:5,
-                "disparo"+sujeto.TIPO,
-                Color.BLACK);
-        raiz.getChildren().add(disparo);
+    /**
+     * Método de apoyo que regresa la lista de Sprites de la raiz
+     *
+     * @return Regresa el objeto List<Sprites> de la raiz
+     */
+    static List<Sprite> sprites() {
+        return nodos //ObservableList<Node>
+                .stream() //Stream<Node>
+                .map(n -> (Sprite) n) //Stream<Sprite>
+                .collect(Collectors.toList()); //List<Sprite>
     }
 }
