@@ -7,7 +7,7 @@ public class App extends Application {
     @Override
     public void start(Stage escenario){
         Scene escena=new Scene(ContentBuilder.mainContent());
-        escena.setOnKeyPressed(ContentBuilder.controles);
+        escena.setOnKeyPressed(ContentBuilder.CONTROLES);
         escenario.setScene(escena);
         escenario.show();
     }
