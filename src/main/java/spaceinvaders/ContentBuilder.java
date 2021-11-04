@@ -9,6 +9,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
+/**
+ * Clase que crea y hace funcionar todo el conenido
+ */
 public class ContentBuilder {
     /**
      * Pasos que se darán mediante el método actualizar
@@ -32,18 +35,17 @@ public class ContentBuilder {
     static final int
             WIDTH = 600,
             HEIGHT = 720,
-            LADO_JUGADOR = 80,
+            LADO_JUGADOR = 55,
             LADO_ENEMIGO = 40;
 
     /**
-     * Raiz de tipo Pane en donde se coloca todo
+     * Raíz de tipo Pane en donde se coloca todo
      * que será regresado al método main
      */
     final static Pane RAIZ = new Pane();
 
     /**
-     * Lista de nodos
-     * En realidad todos los nodos son Canvas
+     * Lista de nodos, en realidad todos los nodos son Canvas
      * (un tipo particular de Node)
      */
     final static ObservableList<Node> NODOS = RAIZ.getChildren();
@@ -69,7 +71,7 @@ public class ContentBuilder {
      * El jugador no necesita ser actualizado con el tiempo
      * a diferencia de los proyectiles y los enemigos,
      * en cambio se define el siguiente manejador de eventos
-     * para la escena en el método main.
+     * para la escena en el método App.start().
      */
     final static EventHandler<KeyEvent> CONTROLES = event -> {
         switch (event.getCode()) {
