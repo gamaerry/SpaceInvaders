@@ -9,8 +9,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-import java.util.stream.Collectors;
-
 public class ContentBuilder {
     /**
      * Pasos que se darán mediante el método actualizar
@@ -19,9 +17,23 @@ public class ContentBuilder {
     static int pasos = 0;
 
     /**
+     * Colores del juego
+     */
+    static final Color
+            COLOR_JUGADOR = Color.BLUE,
+            COLOR_ENEMIGO = Color.RED,
+            COLOR_APUNTADOR = Color.BLACK,
+            COLOR_PROYECTIL = Color.BLACK,
+            COLOR_FONDO = Color.WHITE;
+
+    /**
      * Simples constantes enteras para las dimensiones
      */
-    static final int WIDTH = 600, HEIGHT = 720, LADO_JUGADOR = 40, LADO_ENEMIGO = 40;
+    static final int
+            WIDTH = 600,
+            HEIGHT = 720,
+            LADO_JUGADOR = 80,
+            LADO_ENEMIGO = 40;
 
     /**
      * Raiz de tipo Pane en donde se coloca todo
@@ -30,11 +42,16 @@ public class ContentBuilder {
     final static Pane RAIZ = new Pane();
 
     /**
-     * En realidad todos los nodos son Rectangle
-     * (un tipo particular de Shape)
+     * Lista de nodos
+     * En realidad todos los nodos son Canvas
+     * (un tipo particular de Node)
+     */
+    final static ObservableList<Node> NODOS = RAIZ.getChildren();
+
+    /**
+     * Lista inmodificable de nodos
      */
     final static ObservableList<Node> NODOS_U = RAIZ.getChildrenUnmodifiable();
-    final static ObservableList<Node> NODOS = RAIZ.getChildren();
 
     /**
      * El jugador es del tipo ShooterSprite
@@ -46,7 +63,7 @@ public class ContentBuilder {
             WIDTH / 2 - 20,
             HEIGHT - 50,
             "jugador",
-            Color.BLACK);
+            COLOR_JUGADOR);
 
     /**
      * El jugador no necesita ser actualizado con el tiempo
@@ -72,16 +89,16 @@ public class ContentBuilder {
                 JUGADOR.disparar();
                 break;
             case W:
-                JUGADOR.direccion = 'w';
+                JUGADOR.setDireccion('w');
                 break;
             case S:
-                JUGADOR.direccion = 's';
+                JUGADOR.setDireccion('s');
                 break;
             case A:
-                JUGADOR.direccion = 'a';
+                JUGADOR.setDireccion('a');
                 break;
             case D:
-                JUGADOR.direccion = 'd';
+                JUGADOR.setDireccion('d');
                 break;
         }
     };
@@ -118,7 +135,7 @@ public class ContentBuilder {
                     90 + i * 100,
                     150,
                     "enemigo",
-                    Color.RED);
+                    COLOR_ENEMIGO);
             NODOS.add(enemigo);
         }
     }
@@ -127,11 +144,14 @@ public class ContentBuilder {
      * Este método actualiza el juego con el tiempo
      */
     static void actualizar() {
-        pasos++;
-        NODOS_U.stream().map(n->(Sprite)n).forEach(nodo -> {
+        NODOS_U.stream().map(n -> (Sprite) n).forEach(nodo -> {
             if (nodo instanceof ShooterSprite) { //Si es un tirador entonces
-                if (nodo != JUGADOR && pasos > 200 && Math.random() < 0.3) //Si es el enemigo y es tiempo de disparar y le toca por azar
-                    ((ShooterSprite)nodo).disparar(); // dispara
+                if (nodo != JUGADOR) {// Si es el enemigo
+                    if (nodo.getBoundsInParent().intersects(JUGADOR.getBoundsInParent())) //Si intersecta con el jugador
+                        JUGADOR.setVisible(false);//muere el jugador
+                    if (pasos > 200 && Math.random() < 0.3) //Si es tiempo de disparar y le toca por azar
+                        ((ShooterSprite) nodo).disparar(); // dispara
+                }
             } else { //Si no es un tirador, entonces es un proyectil
                 if (nodo.TIPO.equals("proyectilenemigo")) { //Si es el proyectil del enemigo
                     nodo.moverAbajo(); //Entonces se mueve hacia abajo
@@ -144,8 +164,8 @@ public class ContentBuilder {
                     NODOS_U.forEach(nodoInterno -> { // Y para cada nodo...
                         if (nodoInterno instanceof ShooterSprite && nodoInterno != JUGADOR) { //Si el nodo es el enemigo entonces
                             if (nodo.getBoundsInParent().intersects(nodoInterno.getBoundsInParent())) { //si la bala y el enemigo intersectan
-                                nodo.setVisible(false); // el enemigo muere
-                                nodoInterno.setVisible(false); // el proyectil muere
+                                nodo.setVisible(false); // el proyectil muere
+                                nodoInterno.setVisible(false); // el enemigo muere
                             }
                         }
                     });
@@ -153,6 +173,6 @@ public class ContentBuilder {
             }
         });
         NODOS.removeIf(nodo -> !nodo.isVisible());
-        if (pasos > 200) pasos = 0;
+        if (pasos++ > 200) pasos = 0;
     }
 }
