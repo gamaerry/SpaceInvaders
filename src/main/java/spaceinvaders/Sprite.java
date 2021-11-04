@@ -1,18 +1,27 @@
 package spaceinvaders;
 
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
-public class Sprite extends Rectangle {
+public class Sprite extends Canvas {
+    final GraphicsContext GC = getGraphicsContext2D();
     final String TIPO;
     char direccion;
 
-    Sprite(int x, int y, int w, int h, Color color, String tipo, char direccion) {
-        super(w, h, color);
+    Sprite(int w, int h, int x, int y, String tipo, char direccion, Color color) {
+        super(w, h);
         setTranslateX(x);
         setTranslateY(y);
         TIPO = tipo;
         this.direccion = direccion;
+
+        if (tipo.matches("proyectil.*")) {
+            System.out.println("MATCH!");
+            GC.setFill(color);
+            GC.fillRect(0, 0, w, h);
+            //GC.fillRoundRect(0, 0, w, h,10,10);
+        }
     }
 
     void moverIzquierda() {
