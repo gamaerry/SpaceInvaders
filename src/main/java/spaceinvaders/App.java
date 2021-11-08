@@ -18,6 +18,7 @@ public class App extends Application {
     public void start(Stage escenario) {
         Scene escena = new Scene(ContentBuilder.mainContent());
         escena.setOnKeyPressed(ContentBuilder.CONTROLES);
+        escena.setOnKeyReleased(ContentBuilder.CONTROLES_SOLTAR);
         escenario.setScene(escena);
         escenario.show();
     }

@@ -13,6 +13,24 @@ import javafx.scene.paint.Color;
  * Clase que crea y hace funcionar todo el conenido
  */
 public class ContentBuilder {
+    static double random;
+    static boolean left = false, up = false, down = false, right = false;
+    static final EventHandler<? super KeyEvent> CONTROLES_SOLTAR = event -> {
+        switch (event.getCode()) {
+            case LEFT:
+                left = false;
+                break;
+            case UP:
+                up = false;
+                break;
+            case DOWN:
+                down = false;
+                break;
+            case RIGHT:
+                right = false;
+                break;
+        }
+    };
     /**
      * Pasos que se darán mediante el método actualizar
      * del objeto de tipo AnimationTimer
@@ -76,16 +94,16 @@ public class ContentBuilder {
     final static EventHandler<KeyEvent> CONTROLES = event -> {
         switch (event.getCode()) {
             case LEFT:
-                JUGADOR.moverIzquierda();
+                left = true;
                 break;
             case UP:
-                JUGADOR.moverArriba();
+                up = true;
                 break;
             case DOWN:
-                JUGADOR.moverAbajo();
+                down = true;
                 break;
             case RIGHT:
-                JUGADOR.moverDerecha();
+                right = true;
                 break;
             case SPACE:
                 JUGADOR.disparar();
@@ -146,13 +164,44 @@ public class ContentBuilder {
      * Este método actualiza el juego con el tiempo
      */
     static void actualizar() {
+        if (left) JUGADOR.moverIzquierda();
+        if (up) JUGADOR.moverArriba();
+        if (down) JUGADOR.moverAbajo();
+        if (right) JUGADOR.moverDerecha();
         NODOS_U.stream().map(n -> (Sprite) n).forEach(nodo -> {
             if (nodo instanceof ShooterSprite) { //Si es un tirador entonces
                 if (nodo != JUGADOR) {// Si es el enemigo
+                    random = Math.random();
                     if (nodo.getBoundsInParent().intersects(JUGADOR.getBoundsInParent())) //Si intersecta con el jugador
                         JUGADOR.setVisible(false);//muere el jugador
-                    if (pasos > 200 && Math.random() < 0.3) //Si es tiempo de disparar y le toca por azar
+                    if (pasos > 200 && random < 0.4) { //Si es tiempo de disparar y le toca por azar
                         ((ShooterSprite) nodo).disparar(); // dispara
+                        if (random < 0.1) {
+                            nodo.moverIzquierda();
+                            nodo.moverIzquierda();
+                            nodo.moverIzquierda();
+                            nodo.moverIzquierda();
+                            nodo.moverIzquierda();
+                        } else if (random < 0.2) {
+                            nodo.moverArriba();
+                            nodo.moverArriba();
+                            nodo.moverArriba();
+                            nodo.moverArriba();
+                            nodo.moverArriba();
+                        } else if (random < 0.3) {
+                            nodo.moverAbajo();
+                            nodo.moverAbajo();
+                            nodo.moverAbajo();
+                            nodo.moverAbajo();
+                            nodo.moverAbajo();
+                        } else {
+                            nodo.moverDerecha();
+                            nodo.moverDerecha();
+                            nodo.moverDerecha();
+                            nodo.moverDerecha();
+                            nodo.moverDerecha();
+                        }
+                    }
                 }
             } else { //Si no es un tirador, entonces es un proyectil
                 if (nodo.TIPO.equals("proyectilenemigo")) { //Si es el proyectil del enemigo
