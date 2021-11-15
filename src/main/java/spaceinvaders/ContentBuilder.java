@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
  * Clase que crea y hace funcionar todo el conenido
  */
 public class ContentBuilder {
+    static ShooterSprite nodoTmp;
     static double random;
     static boolean left = false, up = false, down = false, right = false;
     static final EventHandler<? super KeyEvent> CONTROLES_SOLTAR = event -> {
@@ -164,49 +165,34 @@ public class ContentBuilder {
      * Este método actualiza el juego con el tiempo
      */
     static void actualizar() {
-        if (left) JUGADOR.moverIzquierda();
-        if (up) JUGADOR.moverArriba();
-        if (down) JUGADOR.moverAbajo();
-        if (right) JUGADOR.moverDerecha();
+        if (left) JUGADOR.moverIzquierda(100);
+        if (up) JUGADOR.moverArriba(100);
+        if (down) JUGADOR.moverAbajo(100);
+        if (right) JUGADOR.moverDerecha(100);
         NODOS_U.stream().map(n -> (Sprite) n).forEach(nodo -> {
             if (nodo instanceof ShooterSprite) { //Si es un tirador entonces
                 if (nodo != JUGADOR) {// Si es el enemigo
+                    nodoTmp = (ShooterSprite) nodo;
                     random = Math.random();
-                    if (nodo.getBoundsInParent().intersects(JUGADOR.getBoundsInParent())) //Si intersecta con el jugador
+                    if (nodoTmp.limites.intersects(JUGADOR.limites)) //Si intersecta con el jugador
                         JUGADOR.setVisible(false);//muere el jugador
                     if (pasos > 200 && random < 0.4) { //Si es tiempo de disparar y le toca por azar
-                        ((ShooterSprite) nodo).disparar(); // dispara
+                        nodoTmp.disparar(); // dispara
                         if (random < 0.1) {
-                            nodo.moverIzquierda();
-                            nodo.moverIzquierda();
-                            nodo.moverIzquierda();
-                            nodo.moverIzquierda();
-                            nodo.moverIzquierda();
+                            nodoTmp.moverIzquierda(400);
                         } else if (random < 0.2) {
-                            nodo.moverArriba();
-                            nodo.moverArriba();
-                            nodo.moverArriba();
-                            nodo.moverArriba();
-                            nodo.moverArriba();
+                            nodoTmp.moverArriba(400);
                         } else if (random < 0.3) {
-                            nodo.moverAbajo();
-                            nodo.moverAbajo();
-                            nodo.moverAbajo();
-                            nodo.moverAbajo();
-                            nodo.moverAbajo();
+                            nodoTmp.moverAbajo(400);
                         } else {
-                            nodo.moverDerecha();
-                            nodo.moverDerecha();
-                            nodo.moverDerecha();
-                            nodo.moverDerecha();
-                            nodo.moverDerecha();
+                            nodoTmp.moverDerecha(400);
                         }
                     }
                 }
             } else { //Si no es un tirador, entonces es un proyectil
                 if (nodo.TIPO.equals("proyectilenemigo")) { //Si es el proyectil del enemigo
-                    nodo.moverAbajo(); //Entonces se mueve hacia abajo
-                    if (nodo.getBoundsInParent().intersects(JUGADOR.getBoundsInParent())) { //Si toca al jugador
+                    nodo.moverAbajo(80); //Entonces se mueve hacia abajo
+                    if (nodo.getBoundsInParent().intersects(JUGADOR.limites)) { //Si toca al jugador
                         JUGADOR.setVisible(false);//muere el jugador
                         nodo.setVisible(false); // y el proyectil
                     }
@@ -214,7 +200,7 @@ public class ContentBuilder {
                     JUGADOR.dirigir(nodo); // Entonces se mueve hacia donde se disparó
                     NODOS_U.forEach(nodoInterno -> { // Y para cada nodo...
                         if (nodoInterno instanceof ShooterSprite && nodoInterno != JUGADOR) { //Si el nodo es el enemigo entonces
-                            if (nodo.getBoundsInParent().intersects(nodoInterno.getBoundsInParent())) { //si la bala y el enemigo intersectan
+                            if (nodo.getBoundsInParent().intersects(((ShooterSprite) nodoInterno).limites)) { //si la bala y el enemigo intersectan
                                 nodo.setVisible(false); // el proyectil muere
                                 nodoInterno.setVisible(false); // el enemigo muere
                             }
@@ -223,7 +209,13 @@ public class ContentBuilder {
                 }
             }
         });
-        NODOS.removeIf(nodo -> !nodo.isVisible());
+        NODOS.removeIf(nodo -> {
+            if (!JUGADOR.isVisible()) pantallaFinal();
+            return !nodo.isVisible();
+        });
         if (pasos++ > 200) pasos = 0;
+    }
+
+    private static void pantallaFinal() {
     }
 }

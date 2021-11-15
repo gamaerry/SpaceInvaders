@@ -49,7 +49,6 @@ public class Sprite extends Canvas {
         TIPO = tipo;
         this.direccion = direccion;
         if (tipo.matches("proyectil.*")) {
-            System.out.println("MATCH!");
             GC.setFill(color);
             //GC.fillRect(0, 0, w, h);
             GC.fillRoundRect(0, 0, w, h, 10, 10);
@@ -59,29 +58,29 @@ public class Sprite extends Canvas {
     /**
      * Mueve al Sprite 2 pixeles a la izquierda
      */
-    void moverIzquierda() {
-        setTranslateX(getTranslateX() - 2);
+    void moverIzquierda(int a) {
+        setTranslateX(getTranslateX() - 0.04*a);
     }
 
     /**
      * Mueve al Sprite 2 pixeles a la derecha
      */
-    void moverDerecha() {
-        setTranslateX(getTranslateX() + 2);
+    void moverDerecha(int a) {
+        setTranslateX(getTranslateX() + 0.04*a);
     }
 
     /**
      * Mueve al Sprite 2 pixeles a la abajo
      */
-    void moverAbajo() {
-        setTranslateY(getTranslateY() + 2);
+    void moverAbajo(int a) {
+        setTranslateY(getTranslateY() + 0.04*a);
     }
 
     /**
      * Mueve al Sprite 2 pixeles a la arriba
      */
-    void moverArriba() {
-        setTranslateY(getTranslateY() - 2);
+    void moverArriba(int a) {
+        setTranslateY(getTranslateY() - 0.04*a);
     }
 
     /**

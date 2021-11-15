@@ -1,5 +1,6 @@
 package spaceinvaders;
 
+import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 
 import static spaceinvaders.ContentBuilder.*;
@@ -9,6 +10,7 @@ import static spaceinvaders.ContentBuilder.*;
  * y sobreescribe el método setDirección()
  */
 public class ShooterSprite extends Sprite {
+    Bounds limites= getBoundsInParent();
     /**
      * Una vez que se llama al contructor de Sprite,
      * se verifica si se trata de un jugador o de un enemigo.
@@ -71,16 +73,17 @@ public class ShooterSprite extends Sprite {
         switch (proyectil.getDireccion()) {
             // El rumbo depende de la direccion del proyectil que se le pasó cuando se creó/disparó)
             case 'a':
-                proyectil.moverIzquierda();
+                proyectil.moverIzquierda(100);
+                //(De este modo se moverán 4 pixeles a la izquierda)
                 break;
             case 's':
-                proyectil.moverAbajo();
+                proyectil.moverAbajo(100);
                 break;
             case 'd':
-                proyectil.moverDerecha();
+                proyectil.moverDerecha(100);
                 break;
             default:
-                proyectil.moverArriba();
+                proyectil.moverArriba(100);
                 break;
         }
     }
@@ -158,5 +161,25 @@ public class ShooterSprite extends Sprite {
             GC.setFill(COLOR_JUGADOR);
             GC.fillPolygon(puntosEjeX, puntosEjeY, 4);
         }
+    }
+    @Override
+    void moverIzquierda(int a){
+        super.moverIzquierda(a);
+        limites=getBoundsInParent();
+    }
+    @Override
+    void moverDerecha(int a){
+        super.moverDerecha(a);
+        limites=getBoundsInParent();
+    }
+    @Override
+    void moverArriba(int a){
+        super.moverArriba(a);
+        limites=getBoundsInParent();
+    }
+    @Override
+    void moverAbajo(int a){
+        super.moverAbajo(a);
+        limites=getBoundsInParent();
     }
 }
