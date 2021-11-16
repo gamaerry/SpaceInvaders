@@ -5,6 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -25,8 +27,8 @@ public class ContentBuilder {
     /**
      * Simples constantes enteras para las dimensiones
      */
-    static int width = 600;
-    static int height = 720;
+    static int width = 560;
+    static int height = 680;
     static final int LADO_JUGADOR = 55;
     static final int LADO_ENEMIGO = 40;
     /**
@@ -132,19 +134,28 @@ public class ContentBuilder {
      * @return Regresa el Parent "Panel" en donde se coloca todo
      */
     static Parent mainContent() {
+        Sprite paredes = new Sprite(width, height,20,20,"paredes",'w', Color.BLACK);
         AnimationTimer temporizador = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 actualizar();
             }
         };
-        RAIZ.setPrefSize(width, height);
-        RAIZ.widthProperty().addListener((observable, oldValue, newValue) -> width =newValue.intValue());
-        RAIZ.heightProperty().addListener((observable, oldValue, newValue) -> height =newValue.intValue());
+        RAIZ.setPrefSize(width+40, height+40);
+        RAIZ.widthProperty().addListener((observable, oldValue, newValue) -> {
+            width =newValue.intValue();
+            paredes.setWidth(newValue.intValue()-40);
+
+        });
+        RAIZ.heightProperty().addListener((observable, oldValue, newValue) -> {
+            height =newValue.intValue();
+            //paredes.setHeight(newValue.intValue()-40);
+            System.out.println("Cambio de "+oldValue+" a "+newValue);
+        });
+        NODOS.add(paredes);
         NODOS.add(JUGADOR);
         siguienteNivel();
         temporizador.start();
-        //RAIZ.setBorder(new Border(new BorderStroke(null, BorderStrokeStyle.SOLID, new CornerRadii(120), new BorderWidths(5))));
         return RAIZ;
     }
 
@@ -187,8 +198,11 @@ public class ContentBuilder {
                         } else { nodoTmp.moverDerecha(VEL_ENEMIGO);}
                     }
                 }
-            } else { //Si no es un tirador, entonces es un proyectil
-                if (fueraDelLimite(nodo.getTranslateX(), nodo.getTranslateY())) nodo.setVisible(false);
+            } else if(nodo.TIPO.matches("proyectil.*")){ //Si no es un tirador, entonces es un proyectil
+                if (fueraDelLimite(nodo.getTranslateX(), nodo.getTranslateY())) {
+                    nodo.setVisible(false);
+                    System.out.println("tipo invisible: "+nodo.TIPO);
+                }
                 if (nodo.TIPO.equals("proyectilenemigo")) { //Si es el proyectil del enemigo
                     nodo.moverAbajo(VEL_PROYECTIL_ENEMIGO); //Entonces se mueve hacia abajo
                     if (nodo.getBoundsInParent().intersects(JUGADOR.limites)) { //Si toca al jugador
@@ -216,7 +230,7 @@ public class ContentBuilder {
     }
 
     private static boolean fueraDelLimite(double x, double y) {
-        return x < 0 || x > width || y < 0 || y > height;
+        return x < 20 || x > width-40 || y < 20 || y > height-40;
     }
 
     private static void pantallaFinal() {

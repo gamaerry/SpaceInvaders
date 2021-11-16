@@ -52,6 +52,17 @@ public class Sprite extends Canvas {
             GC.setFill(color);
             //GC.fillRect(0, 0, w, h);
             GC.fillRoundRect(0, 0, w, h, 10, 10);
+        } else if (tipo.matches("paredes")) {
+            GC.setStroke(color);
+            GC.strokeRoundRect(0, 0, w, h, 20, 20);
+            widthProperty().addListener((observable, oldValue, newValue) -> {
+                GC.clearRect(0, 0, oldValue.intValue(),getHeight());
+                GC.strokeRoundRect(0, 0, newValue.intValue(), getHeight(), 20, 20);
+            });
+            heightProperty().addListener((observable, oldValue, newValue) -> {
+                GC.clearRect(0, 0,getWidth(), oldValue.intValue());
+                GC.strokeRoundRect(0, 0, getWidth(), newValue.intValue(), 20, 20);
+            });
         }
     }
 
@@ -59,28 +70,28 @@ public class Sprite extends Canvas {
      * Mueve al Sprite 2 pixeles a la izquierda
      */
     void moverIzquierda(int a) {
-        setTranslateX(getTranslateX() - 0.04*a);
+        setTranslateX(getTranslateX() - 0.04 * a);
     }
 
     /**
      * Mueve al Sprite 2 pixeles a la derecha
      */
     void moverDerecha(int a) {
-        setTranslateX(getTranslateX() + 0.04*a);
+        setTranslateX(getTranslateX() + 0.04 * a);
     }
 
     /**
      * Mueve al Sprite 2 pixeles a la abajo
      */
     void moverAbajo(int a) {
-        setTranslateY(getTranslateY() + 0.04*a);
+        setTranslateY(getTranslateY() + 0.04 * a);
     }
 
     /**
      * Mueve al Sprite 2 pixeles a la arriba
      */
     void moverArriba(int a) {
-        setTranslateY(getTranslateY() - 0.04*a);
+        setTranslateY(getTranslateY() - 0.04 * a);
     }
 
     /**
