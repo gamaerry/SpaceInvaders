@@ -10,7 +10,8 @@ import static spaceinvaders.ContentBuilder.*;
  * y sobreescribe el método setDirección()
  */
 public class ShooterSprite extends Sprite {
-    Bounds limites= getBoundsInParent();
+    Bounds limites = getBoundsInParent();
+
     /**
      * Una vez que se llama al contructor de Sprite,
      * se verifica si se trata de un jugador o de un enemigo.
@@ -30,19 +31,23 @@ public class ShooterSprite extends Sprite {
             super.setDireccion('w'); //Se cambia la dirección de 's' a 'w'
             //Se crea la figura mas grande del jugador (apuntador):
             GC.setFill(COLOR_APUNTADOR);
-            GC.fillPolygon(
-                    new double[]{l / 2.0, l, l / 2.0, 0},
-                    new double[]{0, l / 2.0, l, l / 2.0},
-                    4);
+            GC.fillPolygon(new double[]{l / 2.0, l, l / 2.0, 0},
+                    new double[]{0, l / 2.0, l, l / 2.0}, 4);
             //Se crea la figura central del jugador (con COLOR_JUGADOR):
             GC.setFill(color);
-            GC.fillPolygon(
-                    new double[]{l/ 2.0, 7 * l / 8.0, l / 2.0, l / 8.0},
-                    new double[]{l / 4.0, 5 * l / 8.0, l, 5 * l / 8.0},
-                    4);
+            GC.fillPolygon(new double[]{l / 2.0, 7 * l / 8.0, l / 2.0, l / 8.0},
+                    new double[]{l / 8.0, 3 * l / 4.0, l, 3 * l / 4.0}, 4);
         } else {//Si no es el jugador, es el enemigo
-            GC.setFill(color); //Se usa el COLOR_ENEMIGO
-            GC.fillRect(0, 0, l, l); //Se dibuja un cuadrado
+            //Se crea la figura mas grande del enemigo (apuntador):
+            GC.setFill(COLOR_APUNTADOR);
+            double ladoCuadrado = Math.sqrt(l * l / 2.0),
+                    esquinaCuadrado = (l - ladoCuadrado) / 2.0;
+            GC.fillRect(esquinaCuadrado, esquinaCuadrado, ladoCuadrado, ladoCuadrado); //Se dibuja un cuadrado
+            GC.fillPolygon(new double[]{l / 2.0, l, l / 2.0, 0}, new double[]{0, l / 2.0, l, l / 2.0}, 4);//Se dibuja el rombo
+            //Se crea la figura central del enemigo (con COLOR_ENEMIGO):
+            GC.setFill(COLOR_ENEMIGO);
+            GC.fillPolygon(new double[]{3 * l / 4.0, 3 * l / 4.0, l / 2.0, l / 4.0, l / 4.0},
+                    new double[]{0, l / 2.0, 7 * l / 8.0, l / 2.0, 0}, 5);
         }
     }
 
@@ -141,9 +146,9 @@ public class ShooterSprite extends Sprite {
                             LADO_JUGADOR / 8.0};
                     puntosEjeY = new double[]{
                             0,
-                            3 * LADO_JUGADOR / 8.0,
-                            3 * LADO_JUGADOR / 4.0,
-                            3 * LADO_JUGADOR / 8.0};
+                            LADO_JUGADOR / 4.0,
+                            7 * LADO_JUGADOR / 8.0,
+                            LADO_JUGADOR / 4.0};
                     break;
                 default: //Este es el caso que queda, 'w'
                     puntosEjeX = new double[]{
@@ -152,33 +157,37 @@ public class ShooterSprite extends Sprite {
                             LADO_JUGADOR / 2.0,
                             LADO_JUGADOR / 8.0};
                     puntosEjeY = new double[]{
-                            LADO_JUGADOR / 4.0,
-                            5 * LADO_JUGADOR / 8.0,
+                            LADO_JUGADOR / 8.0,
+                            3 * LADO_JUGADOR / 4.0,
                             LADO_JUGADOR,
-                            5 * LADO_JUGADOR / 8.0};
+                            3 * LADO_JUGADOR / 4.0};
             }
             GC.setFill(COLOR_JUGADOR);
             GC.fillPolygon(puntosEjeX, puntosEjeY, 4);
         }
     }
+
     @Override
-    void moverIzquierda(int a){
+    void moverIzquierda(int a) {
         super.moverIzquierda(a);
-        limites=getBoundsInParent();
+        limites = getBoundsInParent();
     }
+
     @Override
-    void moverDerecha(int a){
+    void moverDerecha(int a) {
         super.moverDerecha(a);
-        limites=getBoundsInParent();
+        limites = getBoundsInParent();
     }
+
     @Override
-    void moverArriba(int a){
+    void moverArriba(int a) {
         super.moverArriba(a);
-        limites=getBoundsInParent();
+        limites = getBoundsInParent();
     }
+
     @Override
-    void moverAbajo(int a){
+    void moverAbajo(int a) {
         super.moverAbajo(a);
-        limites=getBoundsInParent();
+        limites = getBoundsInParent();
     }
 }
