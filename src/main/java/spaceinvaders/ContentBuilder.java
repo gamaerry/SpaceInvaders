@@ -6,13 +6,36 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 /**
  * Clase que crea y hace funcionar todo el conenido
  */
 public class ContentBuilder {
+    /**
+     * Colores del juego
+     */
+    static final Color
+            COLOR_JUGADOR = Color.BLUE,
+            COLOR_ENEMIGO = Color.RED,
+            COLOR_APUNTADOR = Color.BLACK,
+            COLOR_PROYECTIL = Color.BLACK,
+            COLOR_FONDO = Color.WHITE;
+    /**
+     * Simples constantes enteras para las dimensiones
+     */
+    static int width = 600;
+    static int height = 720;
+    static final int LADO_JUGADOR = 55;
+    static final int LADO_ENEMIGO = 40;
+    /**
+     * Variables enteras para las velocidades
+     */
+    static int VEL_JUGADOR = 80,
+            VEL_ENEMIGO = 350,
+            VEL_PROYECTIL_ENEMIGO = 70,
+            VEL_PROYECTIL_JUGADOR = 90;
     static ShooterSprite nodoTmp;
     static double random;
     static boolean left = false, up = false, down = false, right = false;
@@ -32,36 +55,19 @@ public class ContentBuilder {
                 break;
         }
     };
+
     /**
      * Pasos que se darán mediante el método actualizar
      * del objeto de tipo AnimationTimer
      */
     static int pasos = 0;
 
-    /**
-     * Colores del juego
-     */
-    static final Color
-            COLOR_JUGADOR = Color.BLUE,
-            COLOR_ENEMIGO = Color.RED,
-            COLOR_APUNTADOR = Color.BLACK,
-            COLOR_PROYECTIL = Color.BLACK,
-            COLOR_FONDO = Color.WHITE;
-
-    /**
-     * Simples constantes enteras para las dimensiones
-     */
-    static final int
-            WIDTH = 600,
-            HEIGHT = 720,
-            LADO_JUGADOR = 55,
-            LADO_ENEMIGO = 40;
 
     /**
      * Raíz de tipo Pane en donde se coloca todo
      * que será regresado al método main
      */
-    final static Pane RAIZ = new Pane();
+    final static BorderPane RAIZ = new BorderPane();
 
     /**
      * Lista de nodos, en realidad todos los nodos son Canvas
@@ -79,12 +85,7 @@ public class ContentBuilder {
      * un tipo particular de Sprite
      */
     final static ShooterSprite JUGADOR = new ShooterSprite(
-            LADO_JUGADOR,
-            LADO_JUGADOR,
-            WIDTH / 2 - 20,
-            HEIGHT - 50,
-            "jugador",
-            COLOR_JUGADOR);
+            LADO_JUGADOR, width / 2 - 20, height - 50, "jugador", COLOR_JUGADOR);
 
     /**
      * El jugador no necesita ser actualizado con el tiempo
@@ -137,10 +138,13 @@ public class ContentBuilder {
                 actualizar();
             }
         };
-        RAIZ.setPrefSize(WIDTH, HEIGHT);
+        RAIZ.setPrefSize(width, height);
+        RAIZ.widthProperty().addListener((observable, oldValue, newValue) -> width =newValue.intValue());
+        RAIZ.heightProperty().addListener((observable, oldValue, newValue) -> height =newValue.intValue());
         NODOS.add(JUGADOR);
         siguienteNivel();
         temporizador.start();
+        //RAIZ.setBorder(new Border(new BorderStroke(null, BorderStrokeStyle.SOLID, new CornerRadii(120), new BorderWidths(5))));
         return RAIZ;
     }
 
@@ -151,7 +155,6 @@ public class ContentBuilder {
     static void siguienteNivel() {
         for (int i = 0; i < 5; i++) {
             ShooterSprite enemigo = new ShooterSprite(
-                    LADO_ENEMIGO,
                     LADO_ENEMIGO,
                     90 + i * 100,
                     150,
@@ -165,10 +168,10 @@ public class ContentBuilder {
      * Este método actualiza el juego con el tiempo
      */
     static void actualizar() {
-        if (left) JUGADOR.moverIzquierda(100);
-        if (up) JUGADOR.moverArriba(100);
-        if (down) JUGADOR.moverAbajo(100);
-        if (right) JUGADOR.moverDerecha(100);
+        if (left) JUGADOR.moverIzquierda(VEL_JUGADOR);
+        if (up) JUGADOR.moverArriba(VEL_JUGADOR);
+        if (down) JUGADOR.moverAbajo(VEL_JUGADOR);
+        if (right) JUGADOR.moverDerecha(VEL_JUGADOR);
         NODOS_U.stream().map(n -> (Sprite) n).forEach(nodo -> {
             if (nodo instanceof ShooterSprite) { //Si es un tirador entonces
                 if (nodo != JUGADOR) {// Si es el enemigo
@@ -178,20 +181,16 @@ public class ContentBuilder {
                         JUGADOR.setVisible(false);//muere el jugador
                     if (pasos > 200 && random < 0.4) { //Si es tiempo de disparar y le toca por azar
                         nodoTmp.disparar(); // dispara
-                        if (random < 0.1) {
-                            nodoTmp.moverIzquierda(400);
-                        } else if (random < 0.2) {
-                            nodoTmp.moverArriba(400);
-                        } else if (random < 0.3) {
-                            nodoTmp.moverAbajo(400);
-                        } else {
-                            nodoTmp.moverDerecha(400);
-                        }
+                        if (random < 0.1) { nodoTmp.moverIzquierda(VEL_ENEMIGO);
+                        } else if (random < 0.2) { nodoTmp.moverArriba(VEL_ENEMIGO);
+                        } else if (random < 0.3) { nodoTmp.moverAbajo(VEL_ENEMIGO);
+                        } else { nodoTmp.moverDerecha(VEL_ENEMIGO);}
                     }
                 }
             } else { //Si no es un tirador, entonces es un proyectil
+                if (fueraDelLimite(nodo.getTranslateX(), nodo.getTranslateY())) nodo.setVisible(false);
                 if (nodo.TIPO.equals("proyectilenemigo")) { //Si es el proyectil del enemigo
-                    nodo.moverAbajo(80); //Entonces se mueve hacia abajo
+                    nodo.moverAbajo(VEL_PROYECTIL_ENEMIGO); //Entonces se mueve hacia abajo
                     if (nodo.getBoundsInParent().intersects(JUGADOR.limites)) { //Si toca al jugador
                         JUGADOR.setVisible(false);//muere el jugador
                         nodo.setVisible(false); // y el proyectil
@@ -199,7 +198,7 @@ public class ContentBuilder {
                 } else { //Si no es el proyectil enemigo, es el del jugador
                     JUGADOR.dirigir(nodo); // Entonces se mueve hacia donde se disparó
                     NODOS_U.forEach(nodoInterno -> { // Y para cada nodo...
-                        if (nodoInterno instanceof ShooterSprite && nodoInterno != JUGADOR) { //Si el nodo es el enemigo entonces
+                        if (nodoInterno != JUGADOR && nodoInterno instanceof ShooterSprite) { //Si el nodo es el enemigo entonces
                             if (nodo.getBoundsInParent().intersects(((ShooterSprite) nodoInterno).limites)) { //si la bala y el enemigo intersectan
                                 nodo.setVisible(false); // el proyectil muere
                                 nodoInterno.setVisible(false); // el enemigo muere
@@ -214,6 +213,10 @@ public class ContentBuilder {
             return !nodo.isVisible();
         });
         if (pasos++ > 200) pasos = 0;
+    }
+
+    private static boolean fueraDelLimite(double x, double y) {
+        return x < 0 || x > width || y < 0 || y > height;
     }
 
     private static void pantallaFinal() {

@@ -18,32 +18,31 @@ public class ShooterSprite extends Sprite {
      * con una dirección por defecto 'w' (hacia arriba) para el JUGADOR,
      * 's' (hacia abajo) para el enemigo
      *
-     * @param w     Width
-     * @param h     Height
+     * @param l     Width and height
      * @param x     Posición en el eje x
      * @param y     Posición en el eje y
      * @param tipo  Qué tipo de Sprite es
      * @param color Color del Sprite
      */
-    ShooterSprite(int w, int h, int x, int y, String tipo, Color color) {
-        super(w, h, x, y, tipo, 's', color);
+    ShooterSprite(int l, int x, int y, String tipo, Color color) {
+        super(l, l, x, y, tipo, 's', color);
         if (tipo.equals("jugador")) { //Si es el jugador
             super.setDireccion('w'); //Se cambia la dirección de 's' a 'w'
             //Se crea la figura mas grande del jugador (apuntador):
             GC.setFill(COLOR_APUNTADOR);
             GC.fillPolygon(
-                    new double[]{w / 2.0, w, w / 2.0, 0},
-                    new double[]{0, h / 2.0, h, h / 2.0},
+                    new double[]{l / 2.0, l, l / 2.0, 0},
+                    new double[]{0, l / 2.0, l, l / 2.0},
                     4);
             //Se crea la figura central del jugador (con COLOR_JUGADOR):
             GC.setFill(color);
             GC.fillPolygon(
-                    new double[]{w / 2.0, 7 * w / 8.0, w / 2.0, w / 8.0},
-                    new double[]{h / 4.0, 5 * h / 8.0, h, 5 * h / 8.0},
+                    new double[]{l/ 2.0, 7 * l / 8.0, l / 2.0, l / 8.0},
+                    new double[]{l / 4.0, 5 * l / 8.0, l, 5 * l / 8.0},
                     4);
         } else {//Si no es el jugador, es el enemigo
             GC.setFill(color); //Se usa el COLOR_ENEMIGO
-            GC.fillRect(0, 0, w, h); //Se dibuja un cuadrado
+            GC.fillRect(0, 0, l, l); //Se dibuja un cuadrado
         }
     }
 
@@ -73,17 +72,17 @@ public class ShooterSprite extends Sprite {
         switch (proyectil.getDireccion()) {
             // El rumbo depende de la direccion del proyectil que se le pasó cuando se creó/disparó)
             case 'a':
-                proyectil.moverIzquierda(100);
+                proyectil.moverIzquierda(VEL_PROYECTIL_JUGADOR);
                 //(De este modo se moverán 4 pixeles a la izquierda)
                 break;
             case 's':
-                proyectil.moverAbajo(100);
+                proyectil.moverAbajo(VEL_PROYECTIL_JUGADOR);
                 break;
             case 'd':
-                proyectil.moverDerecha(100);
+                proyectil.moverDerecha(VEL_PROYECTIL_JUGADOR);
                 break;
             default:
-                proyectil.moverArriba(100);
+                proyectil.moverArriba(VEL_PROYECTIL_JUGADOR);
                 break;
         }
     }
