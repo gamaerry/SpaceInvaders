@@ -45,7 +45,7 @@ public class ShooterSprite extends Sprite {
             GC.fillRect(esquinaCuadrado, esquinaCuadrado, ladoCuadrado, ladoCuadrado); //Se dibuja un cuadrado
             GC.fillPolygon(new double[]{l / 2.0, l, l / 2.0, 0}, new double[]{0, l / 2.0, l, l / 2.0}, 4);//Se dibuja el rombo
             //Se crea la figura central del enemigo (con COLOR_ENEMIGO):
-            GC.setFill(COLOR_ENEMIGO);
+            GC.setFill(COLOR_ENEMIGO_A);
             GC.fillPolygon(new double[]{3 * l / 4.0, 3 * l / 4.0, l / 2.0, l / 4.0, l / 4.0},
                     new double[]{0, l / 2.0, 7 * l / 8.0, l / 2.0, 0}, 5);
         }
@@ -77,17 +77,17 @@ public class ShooterSprite extends Sprite {
         switch (proyectil.getDireccion()) {
             // El rumbo depende de la direccion del proyectil que se le pasó cuando se creó/disparó)
             case 'a':
-                proyectil.moverIzquierda(VEL_PROYECTIL_JUGADOR);
+                proyectil.moverIzquierda(velProyectilJugador);
                 //(De este modo se moverán 4 pixeles a la izquierda)
                 break;
             case 's':
-                proyectil.moverAbajo(VEL_PROYECTIL_JUGADOR);
+                proyectil.moverAbajo(velProyectilJugador);
                 break;
             case 'd':
-                proyectil.moverDerecha(VEL_PROYECTIL_JUGADOR);
+                proyectil.moverDerecha(velProyectilJugador);
                 break;
             default:
-                proyectil.moverArriba(VEL_PROYECTIL_JUGADOR);
+                proyectil.moverArriba(velProyectilJugador);
                 break;
         }
     }
@@ -104,63 +104,63 @@ public class ShooterSprite extends Sprite {
         if (TIPO.equals("jugador")) {
             //Primero se borra el contenido del Canvas
             //usando el objeto GC situado en la clase Sprite
-            GC.clearRect(0, 0, LADO_JUGADOR, LADO_JUGADOR);
+            GC.clearRect(0, 0, ladoJugador, ladoJugador);
             //Se crea la figura mas grande del jugador (apuntador):
             GC.setFill(COLOR_APUNTADOR);
             GC.fillPolygon(
-                    new double[]{LADO_JUGADOR / 2.0, LADO_JUGADOR, LADO_JUGADOR / 2.0, 0},
-                    new double[]{0, LADO_JUGADOR / 2.0, LADO_JUGADOR, LADO_JUGADOR / 2.0},
+                    new double[]{ladoJugador / 2.0, ladoJugador, ladoJugador / 2.0, 0},
+                    new double[]{0, ladoJugador / 2.0, ladoJugador, ladoJugador / 2.0},
                     4);
             //Se crea la forma que completará al jugador:
             double[] puntosEjeX, puntosEjeY; //Aquí serán almacenados los puntos que cambian en función de la dirección
             switch (direccion) {
                 case 'a': //Esta posición fué un feliz error que le terminó gustando al autor del código
                     puntosEjeX = new double[]{
-                            3 * LADO_JUGADOR / 4.0,
-                            LADO_JUGADOR,
-                            3 * LADO_JUGADOR / 4.0,
-                            LADO_JUGADOR / 8.0};
+                            3 * ladoJugador / 4.0,
+                            ladoJugador,
+                            3 * ladoJugador / 4.0,
+                            ladoJugador / 8.0};
                     puntosEjeY = new double[]{
-                            LADO_JUGADOR / 8.0,
-                            LADO_JUGADOR / 2.0,
-                            7 * LADO_JUGADOR / 8.0,
-                            LADO_JUGADOR / 2.0,};
+                            ladoJugador / 8.0,
+                            ladoJugador / 2.0,
+                            7 * ladoJugador / 8.0,
+                            ladoJugador / 2.0,};
                     break;
                 case 'd': //La posición para 'd' es un reflejo exacto del caso 'a'
                     puntosEjeX = new double[]{
-                            LADO_JUGADOR / 4.0,
+                            ladoJugador / 4.0,
                             0,
-                            LADO_JUGADOR / 4.0,
-                            7 * LADO_JUGADOR / 8.0};
+                            ladoJugador / 4.0,
+                            7 * ladoJugador / 8.0};
                     puntosEjeY = new double[]{
-                            LADO_JUGADOR / 8.0,
-                            LADO_JUGADOR / 2.0,
-                            7 * LADO_JUGADOR / 8.0,
-                            LADO_JUGADOR / 2.0};
+                            ladoJugador / 8.0,
+                            ladoJugador / 2.0,
+                            7 * ladoJugador / 8.0,
+                            ladoJugador / 2.0};
                     break;
                 case 's': //La pocisión para abajo es un reflejo exacto de la que es hacia arriba
                     puntosEjeX = new double[]{
-                            LADO_JUGADOR / 2.0,
-                            7 * LADO_JUGADOR / 8.0,
-                            LADO_JUGADOR / 2.0,
-                            LADO_JUGADOR / 8.0};
+                            ladoJugador / 2.0,
+                            7 * ladoJugador / 8.0,
+                            ladoJugador / 2.0,
+                            ladoJugador / 8.0};
                     puntosEjeY = new double[]{
                             0,
-                            LADO_JUGADOR / 4.0,
-                            7 * LADO_JUGADOR / 8.0,
-                            LADO_JUGADOR / 4.0};
+                            ladoJugador / 4.0,
+                            7 * ladoJugador / 8.0,
+                            ladoJugador / 4.0};
                     break;
                 default: //Este es el caso que queda, 'w'
                     puntosEjeX = new double[]{
-                            LADO_JUGADOR / 2.0,
-                            7 * LADO_JUGADOR / 8.0,
-                            LADO_JUGADOR / 2.0,
-                            LADO_JUGADOR / 8.0};
+                            ladoJugador / 2.0,
+                            7 * ladoJugador / 8.0,
+                            ladoJugador / 2.0,
+                            ladoJugador / 8.0};
                     puntosEjeY = new double[]{
-                            LADO_JUGADOR / 8.0,
-                            3 * LADO_JUGADOR / 4.0,
-                            LADO_JUGADOR,
-                            3 * LADO_JUGADOR / 4.0};
+                            ladoJugador / 8.0,
+                            3 * ladoJugador / 4.0,
+                            ladoJugador,
+                            3 * ladoJugador / 4.0};
             }
             GC.setFill(COLOR_JUGADOR);
             GC.fillPolygon(puntosEjeX, puntosEjeY, 4);

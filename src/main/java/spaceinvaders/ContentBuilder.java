@@ -5,8 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -20,24 +18,29 @@ public class ContentBuilder {
      */
     static final Color
             COLOR_JUGADOR = Color.BLUE,
-            COLOR_ENEMIGO = Color.RED,
+            COLOR_ENEMIGO_A = Color.RED,
             COLOR_APUNTADOR = Color.BLACK,
             COLOR_PROYECTIL = Color.BLACK,
-            COLOR_FONDO = Color.WHITE;
+            COLOR_PAREDES = Color.BLACK;
     /**
-     * Simples constantes enteras para las dimensiones
+     * Simples variables enteras para las dimensiones
      */
-    static int width = 560;
-    static int height = 680;
-    static final int LADO_JUGADOR = 55;
-    static final int LADO_ENEMIGO = 40;
+    static int widthInterno = 560,
+            heightInterno = 680;
+
     /**
-     * Variables enteras para las velocidades
+     * Simples variables para el jugador
      */
-    static int VEL_JUGADOR = 80,
-            VEL_ENEMIGO = 350,
-            VEL_PROYECTIL_ENEMIGO = 70,
-            VEL_PROYECTIL_JUGADOR = 90;
+    static int ladoJugador = 55,
+            velJugador = 80,
+            velProyectilJugador = 90;
+    /**
+     * Constantes enteras para los enemigos
+     */
+    static final int LADO_ENEMIGO = 40,
+            VEL_ENEMIGO_A = 350,
+            VEL_PROYECTIL_ENEMIGO_A = 70;
+
     static ShooterSprite nodoTmp;
     static double random;
     static boolean left = false, up = false, down = false, right = false;
@@ -87,7 +90,10 @@ public class ContentBuilder {
      * un tipo particular de Sprite
      */
     final static ShooterSprite JUGADOR = new ShooterSprite(
-            LADO_JUGADOR, width / 2 - 20, height - 50, "jugador", COLOR_JUGADOR);
+            ladoJugador, widthInterno / 2 - 20, heightInterno - 50, "jugador", COLOR_JUGADOR);
+
+    final static Sprite PAREDES = new Sprite(
+            widthInterno, heightInterno, 20, 20, "paredes", 'w', COLOR_PAREDES);
 
     /**
      * El jugador no necesita ser actualizado con el tiempo
@@ -134,28 +140,27 @@ public class ContentBuilder {
      * @return Regresa el Parent "Panel" en donde se coloca todo
      */
     static Parent mainContent() {
-        Sprite paredes = new Sprite(width, height,20,20,"paredes",'w', Color.BLACK);
-        AnimationTimer temporizador = new AnimationTimer() {
+        RAIZ.setPrefSize(widthInterno + 40, heightInterno + 40);
+        RAIZ.widthProperty().addListener((observable, oldValue, newValue) -> {
+            widthInterno = newValue.intValue() - 40;
+            PAREDES.setWidth(widthInterno);
+        });
+        RAIZ.heightProperty().addListener((observable, oldValue, newValue) -> {
+            heightInterno = newValue.intValue() - 40;
+            PAREDES.setHeight(heightInterno);
+        });
+
+        NODOS.add(PAREDES);
+        NODOS.add(JUGADOR);
+        siguienteNivel();
+
+        final AnimationTimer TEMPORIZADOR = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 actualizar();
             }
         };
-        RAIZ.setPrefSize(width+40, height+40);
-        RAIZ.widthProperty().addListener((observable, oldValue, newValue) -> {
-            width =newValue.intValue();
-            paredes.setWidth(newValue.intValue()-40);
-
-        });
-        RAIZ.heightProperty().addListener((observable, oldValue, newValue) -> {
-            height =newValue.intValue();
-            //paredes.setHeight(newValue.intValue()-40);
-            System.out.println("Cambio de "+oldValue+" a "+newValue);
-        });
-        NODOS.add(paredes);
-        NODOS.add(JUGADOR);
-        siguienteNivel();
-        temporizador.start();
+        TEMPORIZADOR.start();
         return RAIZ;
     }
 
@@ -170,7 +175,7 @@ public class ContentBuilder {
                     90 + i * 100,
                     150,
                     "enemigo",
-                    COLOR_ENEMIGO);
+                    COLOR_ENEMIGO_A);
             NODOS.add(enemigo);
         }
     }
@@ -179,10 +184,10 @@ public class ContentBuilder {
      * Este método actualiza el juego con el tiempo
      */
     static void actualizar() {
-        if (left) JUGADOR.moverIzquierda(VEL_JUGADOR);
-        if (up) JUGADOR.moverArriba(VEL_JUGADOR);
-        if (down) JUGADOR.moverAbajo(VEL_JUGADOR);
-        if (right) JUGADOR.moverDerecha(VEL_JUGADOR);
+        if (left) JUGADOR.moverIzquierda(velJugador);
+        if (up) JUGADOR.moverArriba(velJugador);
+        if (down) JUGADOR.moverAbajo(velJugador);
+        if (right) JUGADOR.moverDerecha(velJugador);
         NODOS_U.stream().map(n -> (Sprite) n).forEach(nodo -> {
             if (nodo instanceof ShooterSprite) { //Si es un tirador entonces
                 if (nodo != JUGADOR) {// Si es el enemigo
@@ -192,19 +197,24 @@ public class ContentBuilder {
                         JUGADOR.setVisible(false);//muere el jugador
                     if (pasos > 200 && random < 0.4) { //Si es tiempo de disparar y le toca por azar
                         nodoTmp.disparar(); // dispara
-                        if (random < 0.1) { nodoTmp.moverIzquierda(VEL_ENEMIGO);
-                        } else if (random < 0.2) { nodoTmp.moverArriba(VEL_ENEMIGO);
-                        } else if (random < 0.3) { nodoTmp.moverAbajo(VEL_ENEMIGO);
-                        } else { nodoTmp.moverDerecha(VEL_ENEMIGO);}
+                        if (random < 0.1) {
+                            nodoTmp.moverIzquierda(VEL_ENEMIGO_A);
+                        } else if (random < 0.2) {
+                            nodoTmp.moverArriba(VEL_ENEMIGO_A);
+                        } else if (random < 0.3) {
+                            nodoTmp.moverAbajo(VEL_ENEMIGO_A);
+                        } else {
+                            nodoTmp.moverDerecha(VEL_ENEMIGO_A);
+                        }
                     }
                 }
-            } else if(nodo.TIPO.matches("proyectil.*")){ //Si no es un tirador, entonces es un proyectil
+            } else if (nodo.TIPO.matches("proyectil.*")) { //Si no es un tirador, entonces es un proyectil
                 if (fueraDelLimite(nodo.getTranslateX(), nodo.getTranslateY())) {
                     nodo.setVisible(false);
-                    System.out.println("tipo invisible: "+nodo.TIPO);
+                    System.out.println("tipo invisible: " + nodo.TIPO);
                 }
                 if (nodo.TIPO.equals("proyectilenemigo")) { //Si es el proyectil del enemigo
-                    nodo.moverAbajo(VEL_PROYECTIL_ENEMIGO); //Entonces se mueve hacia abajo
+                    nodo.moverAbajo(VEL_PROYECTIL_ENEMIGO_A); //Entonces se mueve hacia abajo
                     if (nodo.getBoundsInParent().intersects(JUGADOR.limites)) { //Si toca al jugador
                         JUGADOR.setVisible(false);//muere el jugador
                         nodo.setVisible(false); // y el proyectil
@@ -230,7 +240,7 @@ public class ContentBuilder {
     }
 
     private static boolean fueraDelLimite(double x, double y) {
-        return x < 20 || x > width-40 || y < 20 || y > height-40;
+        return x < 20 || x > widthInterno || y < 20 || y > heightInterno ;
     }
 
     private static void pantallaFinal() {
