@@ -67,28 +67,36 @@ public class Sprite extends Canvas {
     }
 
     /**
-     * Mueve al Sprite 2 pixeles a la izquierda
+     * Mueve al Sprite 0.04a pixeles a la izquierda
+     *
+     * @param a velocidad del movimiento del sprite
      */
     void moverIzquierda(int a) {
         setTranslateX(getTranslateX() - 0.04 * a);
     }
 
     /**
-     * Mueve al Sprite 2 pixeles a la derecha
+     * Mueve al Sprite 0.04a pixeles a la derecha
+     *
+     * @param a velocidad del movimiento del sprite
      */
     void moverDerecha(int a) {
         setTranslateX(getTranslateX() + 0.04 * a);
     }
 
     /**
-     * Mueve al Sprite 2 pixeles a la abajo
+     * Mueve al Sprite 0.04a pixeles a la abajo
+     *
+     * @param a velocidad del movimiento del sprite
      */
     void moverAbajo(int a) {
         setTranslateY(getTranslateY() + 0.04 * a);
     }
 
     /**
-     * Mueve al Sprite 2 pixeles a la arriba
+     * Mueve al Sprite 0.04a pixeles a la arriba
+     *
+     * @param a velocidad del movimiento del sprite
      */
     void moverArriba(int a) {
         setTranslateY(getTranslateY() - 0.04 * a);

@@ -167,24 +167,44 @@ public class ShooterSprite extends Sprite {
         }
     }
 
+    /**
+     * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
+     *
+     * @param a velocidad del movimiento del sprite
+     */
     @Override
     void moverIzquierda(int a) {
         super.moverIzquierda(a);
         limites = getBoundsInParent();
     }
 
+    /**
+     * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
+     *
+     * @param a velocidad del movimiento del sprite
+     */
     @Override
     void moverDerecha(int a) {
         super.moverDerecha(a);
         limites = getBoundsInParent();
     }
 
+    /**
+     * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
+     *
+     * @param a velocidad del movimiento del sprite
+     */
     @Override
     void moverArriba(int a) {
         super.moverArriba(a);
         limites = getBoundsInParent();
     }
 
+    /**
+     * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
+     *
+     * @param a velocidad del movimiento del sprite
+     */
     @Override
     void moverAbajo(int a) {
         super.moverAbajo(a);

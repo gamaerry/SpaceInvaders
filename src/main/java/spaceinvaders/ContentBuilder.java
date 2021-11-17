@@ -22,19 +22,21 @@ public class ContentBuilder {
             COLOR_APUNTADOR = Color.BLACK,
             COLOR_PROYECTIL = Color.BLACK,
             COLOR_PAREDES = Color.BLACK;
+
     /**
-     * Simples variables enteras para las dimensiones
+     * Variables enteras para las dimensiones
      */
     static int widthInterno = 560,
             heightInterno = 680,
             borde = 20;
 
     /**
-     * Simples variables para el jugador
+     * Variables para el jugador
      */
     static int ladoJugador = 55,
             velJugador = 80,
             velProyectilJugador = 90;
+
     /**
      * Constantes enteras para los enemigos
      */
@@ -42,10 +44,24 @@ public class ContentBuilder {
             VEL_ENEMIGO_A = 350,
             VEL_PROYECTIL_ENEMIGO_A = 70;
 
+    /**
+     * Objeto auxiliar para los enemigos
+     */
     static ShooterSprite nodoTmp;
-    static int fueraTmp;
+
+    /**
+     * Objeto auxiliar para los valores aleatorios
+     */
     static double random;
+
+    /**
+     * booleanos que mantienen el estado de los botones pulsados
+     */
     static boolean left = false, up = false, down = false, right = false;
+
+    /**
+     * Manejador del evento de soltar los botones
+     */
     static final EventHandler<? super KeyEvent> CONTROLES_SOLTAR = event -> {
         switch (event.getCode()) {
             case LEFT:
@@ -68,7 +84,6 @@ public class ContentBuilder {
      * del objeto de tipo AnimationTimer
      */
     static int pasos = 0;
-
 
     /**
      * Raíz de tipo Pane en donde se coloca todo
@@ -94,6 +109,9 @@ public class ContentBuilder {
     final static ShooterSprite JUGADOR = new ShooterSprite(
             ladoJugador, widthInterno / 2 - 20, heightInterno - 50, "jugador", COLOR_JUGADOR);
 
+    /**
+     * Las paredes (o márgenes) son del tipo Sprite
+     */
     final static Sprite PAREDES = new Sprite(
             widthInterno, heightInterno, borde, borde, "paredes", 'w', COLOR_PAREDES);
 
@@ -142,6 +160,23 @@ public class ContentBuilder {
      * @return Regresa el Parent "Panel" en donde se coloca todo
      */
     static Parent mainContent() {
+        establecerDimensiones();
+        NODOS.addAll(PAREDES, JUGADOR);
+        siguienteNivel();
+        final AnimationTimer TEMPORIZADOR = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                actualizar();
+            }
+        };
+        TEMPORIZADOR.start();
+        return RAIZ;
+    }
+
+    /**
+     * Método que establece las dimenciones de la raíz
+     */
+    private static void establecerDimensiones() {
         RAIZ.setPrefSize(widthInterno + 40, heightInterno + 40);
         RAIZ.widthProperty().addListener((observable, oldValue, newValue) -> {
             widthInterno = newValue.intValue() - 40;
@@ -151,19 +186,6 @@ public class ContentBuilder {
             heightInterno = newValue.intValue() - 40;
             PAREDES.setHeight(heightInterno);
         });
-
-        NODOS.add(PAREDES);
-        NODOS.add(JUGADOR);
-        siguienteNivel();
-
-        final AnimationTimer TEMPORIZADOR = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                actualizar();
-            }
-        };
-        TEMPORIZADOR.start();
-        return RAIZ;
     }
 
     /**
@@ -190,7 +212,17 @@ public class ContentBuilder {
         if (up) JUGADOR.moverArriba(velJugador);
         if (down) JUGADOR.moverAbajo(velJugador);
         if (right) JUGADOR.moverDerecha(velJugador);
+        //Se limita dos veces al jugador (en seguida y en recorrerSprites())
         limitarShooter(JUGADOR.getTranslateX(), JUGADOR.getTranslateY(), velJugador, ladoJugador, JUGADOR);
+        recorrerSprites();
+        NODOS.removeIf(nodo -> !nodo.isVisible());
+        if (pasos++ > 200) pasos = 0;
+    }
+
+    /**
+     * Recorre y actua sobre cada sprite de la RAIZ con el tiempo
+     */
+    private static void recorrerSprites() {
         NODOS_U.stream().map(n -> (Sprite) n).forEach(nodo -> {
             if (nodo instanceof ShooterSprite) { //Si es un tirador entonces
                 if (nodo != JUGADOR) {// Si es el enemigo
@@ -220,25 +252,27 @@ public class ContentBuilder {
                 } else { //Si no es el proyectil enemigo, es el del jugador
                     JUGADOR.dirigir(nodo); // Entonces se mueve hacia donde se disparó
                     NODOS_U.forEach(nodoInterno -> { // Y para cada nodo...
-                        if (nodoInterno != JUGADOR && nodoInterno instanceof ShooterSprite) { //Si el nodo es el enemigo entonces
+                        if (nodoInterno != JUGADOR && nodoInterno instanceof ShooterSprite) //Si el nodo es el enemigo entonces
                             if (nodo.getBoundsInParent().intersects(((ShooterSprite) nodoInterno).limites)) { //si la bala y el enemigo intersectan
                                 nodo.setVisible(false); // el proyectil muere
                                 nodoInterno.setVisible(false); // el enemigo muere
                             }
-                        }
                     });
                 }
             }
         });
-        NODOS.removeIf(nodo -> {
-            if (!JUGADOR.isVisible()) pantallaFinal();
-            return !nodo.isVisible();
-        });
-        if (pasos++ > 200) pasos = 0;
     }
 
+    /**
+     * Método que mantiene al ShooterSprite dentro del area de juego
+     *
+     * @param x posición horizontal del ShooterSprite
+     * @param y posición vertical del ShoterSprite
+     * @param velShooter velocidad del ShoterSprite
+     * @param ladoShooter longitud del ShoterSprite
+     * @param shooter ShoterSprite a limitar
+     */
     private static void limitarShooter(double x, double y, int velShooter, int ladoShooter, ShooterSprite shooter) {
-        //a diferencia de limitarJugador() este pide lado y vel pues se prevee que existan varios tipos de enemigos
         if (x < borde || x > widthInterno + borde - ladoShooter) //si esta fuera de los límites horizontales
             if (x < borde)
                 shooter.moverDerecha(velShooter);
@@ -251,11 +285,15 @@ public class ContentBuilder {
                 shooter.moverArriba(velShooter);
     }
 
+    /**
+     * Método auxiliar que ayuda a limitar los proyectiles dentro del area del juego
+     *
+     * @param x posición horizontal del proyectil
+     * @param y posición vertical del proyectil
+     * @return Regresa si está fuera del límite o no
+     */
     private static boolean proyectilFueraDelLimite(double x, double y) {
         //Esto se puede simplificar porque borde==proyectil.length
         return x < borde || x > widthInterno || y < borde || y > heightInterno;
-    }
-
-    private static void pantallaFinal() {
     }
 }
