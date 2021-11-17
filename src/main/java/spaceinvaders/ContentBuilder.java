@@ -26,7 +26,8 @@ public class ContentBuilder {
      * Simples variables enteras para las dimensiones
      */
     static int widthInterno = 560,
-            heightInterno = 680;
+            heightInterno = 680,
+            borde = 20;
 
     /**
      * Simples variables para el jugador
@@ -37,11 +38,12 @@ public class ContentBuilder {
     /**
      * Constantes enteras para los enemigos
      */
-    static final int LADO_ENEMIGO = 40,
+    static final int LADO_ENEMIGO_A = 40,
             VEL_ENEMIGO_A = 350,
             VEL_PROYECTIL_ENEMIGO_A = 70;
 
     static ShooterSprite nodoTmp;
+    static int fueraTmp;
     static double random;
     static boolean left = false, up = false, down = false, right = false;
     static final EventHandler<? super KeyEvent> CONTROLES_SOLTAR = event -> {
@@ -93,7 +95,7 @@ public class ContentBuilder {
             ladoJugador, widthInterno / 2 - 20, heightInterno - 50, "jugador", COLOR_JUGADOR);
 
     final static Sprite PAREDES = new Sprite(
-            widthInterno, heightInterno, 20, 20, "paredes", 'w', COLOR_PAREDES);
+            widthInterno, heightInterno, borde, borde, "paredes", 'w', COLOR_PAREDES);
 
     /**
      * El jugador no necesita ser actualizado con el tiempo
@@ -171,7 +173,7 @@ public class ContentBuilder {
     static void siguienteNivel() {
         for (int i = 0; i < 5; i++) {
             ShooterSprite enemigo = new ShooterSprite(
-                    LADO_ENEMIGO,
+                    LADO_ENEMIGO_A,
                     90 + i * 100,
                     150,
                     "enemigo",
@@ -188,31 +190,27 @@ public class ContentBuilder {
         if (up) JUGADOR.moverArriba(velJugador);
         if (down) JUGADOR.moverAbajo(velJugador);
         if (right) JUGADOR.moverDerecha(velJugador);
+        limitarShooter(JUGADOR.getTranslateX(), JUGADOR.getTranslateY(), velJugador, ladoJugador, JUGADOR);
         NODOS_U.stream().map(n -> (Sprite) n).forEach(nodo -> {
             if (nodo instanceof ShooterSprite) { //Si es un tirador entonces
                 if (nodo != JUGADOR) {// Si es el enemigo
                     nodoTmp = (ShooterSprite) nodo;
                     random = Math.random();
+                    limitarShooter(nodoTmp.getTranslateX(), nodoTmp.getTranslateY(), VEL_ENEMIGO_A, LADO_ENEMIGO_A, nodoTmp);
                     if (nodoTmp.limites.intersects(JUGADOR.limites)) //Si intersecta con el jugador
                         JUGADOR.setVisible(false);//muere el jugador
                     if (pasos > 200 && random < 0.4) { //Si es tiempo de disparar y le toca por azar
                         nodoTmp.disparar(); // dispara
-                        if (random < 0.1) {
-                            nodoTmp.moverIzquierda(VEL_ENEMIGO_A);
-                        } else if (random < 0.2) {
-                            nodoTmp.moverArriba(VEL_ENEMIGO_A);
-                        } else if (random < 0.3) {
-                            nodoTmp.moverAbajo(VEL_ENEMIGO_A);
-                        } else {
-                            nodoTmp.moverDerecha(VEL_ENEMIGO_A);
-                        }
+                        if (random < 0.1) nodoTmp.moverIzquierda(VEL_ENEMIGO_A);
+                        else if (random < 0.2) nodoTmp.moverArriba(VEL_ENEMIGO_A);
+                        else if (random < 0.3) nodoTmp.moverAbajo(VEL_ENEMIGO_A);
+                        else nodoTmp.moverDerecha(VEL_ENEMIGO_A);
                     }
-                }
+                }else //Si es el jugador (su limitación debe de superar los eventos de los booleanos left, rigth, up y down):
+                    limitarShooter(JUGADOR.getTranslateX(), JUGADOR.getTranslateY(), velJugador, ladoJugador, JUGADOR);
             } else if (nodo.TIPO.matches("proyectil.*")) { //Si no es un tirador, entonces es un proyectil
-                if (fueraDelLimite(nodo.getTranslateX(), nodo.getTranslateY())) {
+                if (proyectilFueraDelLimite(nodo.getTranslateX(), nodo.getTranslateY()))
                     nodo.setVisible(false);
-                    System.out.println("tipo invisible: " + nodo.TIPO);
-                }
                 if (nodo.TIPO.equals("proyectilenemigo")) { //Si es el proyectil del enemigo
                     nodo.moverAbajo(VEL_PROYECTIL_ENEMIGO_A); //Entonces se mueve hacia abajo
                     if (nodo.getBoundsInParent().intersects(JUGADOR.limites)) { //Si toca al jugador
@@ -239,8 +237,23 @@ public class ContentBuilder {
         if (pasos++ > 200) pasos = 0;
     }
 
-    private static boolean fueraDelLimite(double x, double y) {
-        return x < 20 || x > widthInterno || y < 20 || y > heightInterno ;
+    private static void limitarShooter(double x, double y, int velShooter, int ladoShooter, ShooterSprite shooter) {
+        //a diferencia de limitarJugador() este pide lado y vel pues se prevee que existan varios tipos de enemigos
+        if (x < borde || x > widthInterno + borde - ladoShooter) //si esta fuera de los límites horizontales
+            if (x < borde)
+                shooter.moverDerecha(velShooter);
+            else
+                shooter.moverIzquierda(velShooter);
+        else if (y < borde || y > heightInterno + borde - ladoShooter) //si esta fuera de los límites verticales
+            if (y < borde)
+                shooter.moverAbajo(velShooter);
+            else
+                shooter.moverArriba(velShooter);
+    }
+
+    private static boolean proyectilFueraDelLimite(double x, double y) {
+        //Esto se puede simplificar porque borde==proyectil.length
+        return x < borde || x > widthInterno || y < borde || y > heightInterno;
     }
 
     private static void pantallaFinal() {
