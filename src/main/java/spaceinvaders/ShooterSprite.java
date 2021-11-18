@@ -3,7 +3,7 @@ package spaceinvaders;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 
-import static spaceinvaders.ContentBuilder.*;
+import static spaceinvaders.LevelBuilder.*;
 
 /**
  * Clase que hereda de Sprite que adiciona los métodos disparar() y dirigir(),
@@ -11,6 +11,7 @@ import static spaceinvaders.ContentBuilder.*;
  */
 public class ShooterSprite extends Sprite {
     Bounds limites = getBoundsInParent();
+    int velocidadDisparo;
 
     /**
      * Una vez que se llama al contructor de Sprite,
@@ -25,8 +26,9 @@ public class ShooterSprite extends Sprite {
      * @param tipo  Qué tipo de Sprite es
      * @param color Color del Sprite
      */
-    ShooterSprite(int l, int x, int y, String tipo, Color color) {
-        super(l, l, x, y, tipo, 's', color);
+    ShooterSprite(int l, int x, int y, String tipo, Color color, int velocidad, int velocidadDisparo) {
+        super(l, l, x, y, tipo, 's', color, velocidad);
+        this.velocidadDisparo=velocidadDisparo;
         if (tipo.equals("jugador")) { //Si es el jugador
             super.setDireccion('w'); //Se cambia la dirección de 's' a 'w'
             //Se crea la figura mas grande del jugador (apuntador):
@@ -64,7 +66,8 @@ public class ShooterSprite extends Sprite {
                 (int) (getTranslateY() + getHeight() / 2),//centro horizontal
                 "proyectil" + TIPO,
                 getDireccion(),
-                COLOR_PROYECTIL);
+                COLOR_PROYECTIL,
+                velocidadDisparo);
         NODOS.add(proyectil);
     }
 
@@ -77,17 +80,17 @@ public class ShooterSprite extends Sprite {
         switch (proyectil.getDireccion()) {
             // El rumbo depende de la direccion del proyectil que se le pasó cuando se creó/disparó)
             case 'a':
-                proyectil.moverIzquierda(velProyectilJugador);
+                proyectil.moverIzquierda();
                 //(De este modo se moverán 4 pixeles a la izquierda)
                 break;
             case 's':
-                proyectil.moverAbajo(velProyectilJugador);
+                proyectil.moverAbajo();
                 break;
             case 'd':
-                proyectil.moverDerecha(velProyectilJugador);
+                proyectil.moverDerecha();
                 break;
             default:
-                proyectil.moverArriba(velProyectilJugador);
+                proyectil.moverArriba();
                 break;
         }
     }
@@ -104,63 +107,63 @@ public class ShooterSprite extends Sprite {
         if (TIPO.equals("jugador")) {
             //Primero se borra el contenido del Canvas
             //usando el objeto GC situado en la clase Sprite
-            GC.clearRect(0, 0, ladoJugador, ladoJugador);
+            GC.clearRect(0, 0, LADO_JUGADOR, LADO_JUGADOR);
             //Se crea la figura mas grande del jugador (apuntador):
             GC.setFill(COLOR_APUNTADOR);
             GC.fillPolygon(
-                    new double[]{ladoJugador / 2.0, ladoJugador, ladoJugador / 2.0, 0},
-                    new double[]{0, ladoJugador / 2.0, ladoJugador, ladoJugador / 2.0},
+                    new double[]{LADO_JUGADOR / 2.0, LADO_JUGADOR, LADO_JUGADOR / 2.0, 0},
+                    new double[]{0, LADO_JUGADOR / 2.0, LADO_JUGADOR, LADO_JUGADOR / 2.0},
                     4);
             //Se crea la forma que completará al jugador:
             double[] puntosEjeX, puntosEjeY; //Aquí serán almacenados los puntos que cambian en función de la dirección
             switch (direccion) {
                 case 'a': //Esta posición fué un feliz error que le terminó gustando al autor del código
                     puntosEjeX = new double[]{
-                            3 * ladoJugador / 4.0,
-                            ladoJugador,
-                            3 * ladoJugador / 4.0,
-                            ladoJugador / 8.0};
+                            3 * LADO_JUGADOR / 4.0,
+                            LADO_JUGADOR,
+                            3 * LADO_JUGADOR / 4.0,
+                            LADO_JUGADOR / 8.0};
                     puntosEjeY = new double[]{
-                            ladoJugador / 8.0,
-                            ladoJugador / 2.0,
-                            7 * ladoJugador / 8.0,
-                            ladoJugador / 2.0,};
+                            LADO_JUGADOR / 8.0,
+                            LADO_JUGADOR / 2.0,
+                            7 * LADO_JUGADOR / 8.0,
+                            LADO_JUGADOR / 2.0,};
                     break;
                 case 'd': //La posición para 'd' es un reflejo exacto del caso 'a'
                     puntosEjeX = new double[]{
-                            ladoJugador / 4.0,
+                            LADO_JUGADOR / 4.0,
                             0,
-                            ladoJugador / 4.0,
-                            7 * ladoJugador / 8.0};
+                            LADO_JUGADOR / 4.0,
+                            7 * LADO_JUGADOR / 8.0};
                     puntosEjeY = new double[]{
-                            ladoJugador / 8.0,
-                            ladoJugador / 2.0,
-                            7 * ladoJugador / 8.0,
-                            ladoJugador / 2.0};
+                            LADO_JUGADOR / 8.0,
+                            LADO_JUGADOR / 2.0,
+                            7 * LADO_JUGADOR / 8.0,
+                            LADO_JUGADOR / 2.0};
                     break;
                 case 's': //La pocisión para abajo es un reflejo exacto de la que es hacia arriba
                     puntosEjeX = new double[]{
-                            ladoJugador / 2.0,
-                            7 * ladoJugador / 8.0,
-                            ladoJugador / 2.0,
-                            ladoJugador / 8.0};
+                            LADO_JUGADOR / 2.0,
+                            7 * LADO_JUGADOR / 8.0,
+                            LADO_JUGADOR / 2.0,
+                            LADO_JUGADOR / 8.0};
                     puntosEjeY = new double[]{
                             0,
-                            ladoJugador / 4.0,
-                            7 * ladoJugador / 8.0,
-                            ladoJugador / 4.0};
+                            LADO_JUGADOR / 4.0,
+                            7 * LADO_JUGADOR / 8.0,
+                            LADO_JUGADOR / 4.0};
                     break;
                 default: //Este es el caso que queda, 'w'
                     puntosEjeX = new double[]{
-                            ladoJugador / 2.0,
-                            7 * ladoJugador / 8.0,
-                            ladoJugador / 2.0,
-                            ladoJugador / 8.0};
+                            LADO_JUGADOR / 2.0,
+                            7 * LADO_JUGADOR / 8.0,
+                            LADO_JUGADOR / 2.0,
+                            LADO_JUGADOR / 8.0};
                     puntosEjeY = new double[]{
-                            ladoJugador / 8.0,
-                            3 * ladoJugador / 4.0,
-                            ladoJugador,
-                            3 * ladoJugador / 4.0};
+                            LADO_JUGADOR / 8.0,
+                            3 * LADO_JUGADOR / 4.0,
+                            LADO_JUGADOR,
+                            3 * LADO_JUGADOR / 4.0};
             }
             GC.setFill(COLOR_JUGADOR);
             GC.fillPolygon(puntosEjeX, puntosEjeY, 4);
@@ -170,44 +173,44 @@ public class ShooterSprite extends Sprite {
     /**
      * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
      *
-     * @param a velocidad del movimiento del sprite
      */
     @Override
-    void moverIzquierda(int a) {
-        super.moverIzquierda(a);
+    void moverIzquierda() {
+        super.moverIzquierda();
         limites = getBoundsInParent();
     }
 
     /**
      * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
      *
-     * @param a velocidad del movimiento del sprite
      */
     @Override
-    void moverDerecha(int a) {
-        super.moverDerecha(a);
+    void moverDerecha() {
+        super.moverDerecha();
         limites = getBoundsInParent();
     }
 
     /**
      * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
      *
-     * @param a velocidad del movimiento del sprite
      */
     @Override
-    void moverArriba(int a) {
-        super.moverArriba(a);
+    void moverArriba() {
+        super.moverArriba();
         limites = getBoundsInParent();
     }
 
     /**
      * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
      *
-     * @param a velocidad del movimiento del sprite
      */
     @Override
-    void moverAbajo(int a) {
-        super.moverAbajo(a);
+    void moverAbajo() {
+        super.moverAbajo();
         limites = getBoundsInParent();
+    }
+
+    public void setVelocidadDisparo(int v) {
+        velocidadDisparo = v;
     }
 }

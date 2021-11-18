@@ -28,6 +28,8 @@ public class Sprite extends Canvas {
      */
     private char direccion;
 
+    private final int VELOCIDAD;
+
     /**
      * Es el contructor de todos los objetos animados en el programa. Si se trata
      * de un proyectil, se dibuja un rectángulo redondeado del color especificado.
@@ -42,64 +44,56 @@ public class Sprite extends Canvas {
      * @param direccion Con qué dirección va a ser usado
      * @param color     Color del Sprite
      */
-    Sprite(int w, int h, int x, int y, String tipo, char direccion, Color color) {
+    Sprite(int w, int h, int x, int y, String tipo, char direccion, Color color, int velocidad) {
         super(w, h);
         setTranslateX(x);
         setTranslateY(y);
         TIPO = tipo;
+        VELOCIDAD = velocidad;
         this.direccion = direccion;
         if (tipo.matches("proyectil.*")) {
             GC.setFill(color);
-            //GC.fillRect(0, 0, w, h);
             GC.fillRoundRect(0, 0, w, h, 10, 10);
-        } else if (tipo.matches("paredes")) {
-            GC.setStroke(color);
-            GC.strokeRoundRect(0, 0, w, h, 20, 20);
+        } else if (tipo.matches("campo")) {
+            GC.setFill(color);
+            GC.fillRoundRect(0, 0, w, h, 20, 20);
             widthProperty().addListener((observable, oldValue, newValue) -> {
-                GC.clearRect(0, 0, oldValue.intValue(),getHeight());
-                GC.strokeRoundRect(0, 0, newValue.intValue(), getHeight(), 20, 20);
-            });
+                GC.clearRect(0, 0, oldValue.intValue(), getHeight());
+                GC.fillRoundRect(0, 0, newValue.intValue(), getHeight(), 20, 20);
+            });//dibujar de nuevo el canvas en función de su ancho
             heightProperty().addListener((observable, oldValue, newValue) -> {
-                GC.clearRect(0, 0,getWidth(), oldValue.intValue());
-                GC.strokeRoundRect(0, 0, getWidth(), newValue.intValue(), 20, 20);
-            });
+                GC.clearRect(0, 0, getWidth(), oldValue.intValue());
+                GC.fillRoundRect(0, 0, getWidth(), newValue.intValue(), 20, 20);
+            });//dibujar de nuevo el canvas en función de su altura
         }
     }
 
     /**
      * Mueve al Sprite 0.04a pixeles a la izquierda
-     *
-     * @param a velocidad del movimiento del sprite
      */
-    void moverIzquierda(int a) {
-        setTranslateX(getTranslateX() - 0.04 * a);
+    void moverIzquierda() {
+        setTranslateX(getTranslateX() - 0.04 * VELOCIDAD);
     }
 
     /**
      * Mueve al Sprite 0.04a pixeles a la derecha
-     *
-     * @param a velocidad del movimiento del sprite
      */
-    void moverDerecha(int a) {
-        setTranslateX(getTranslateX() + 0.04 * a);
+    void moverDerecha() {
+        setTranslateX(getTranslateX() + 0.04 * VELOCIDAD);
     }
 
     /**
      * Mueve al Sprite 0.04a pixeles a la abajo
-     *
-     * @param a velocidad del movimiento del sprite
      */
-    void moverAbajo(int a) {
-        setTranslateY(getTranslateY() + 0.04 * a);
+    void moverAbajo() {
+        setTranslateY(getTranslateY() + 0.04 * VELOCIDAD);
     }
 
     /**
      * Mueve al Sprite 0.04a pixeles a la arriba
-     *
-     * @param a velocidad del movimiento del sprite
      */
-    void moverArriba(int a) {
-        setTranslateY(getTranslateY() - 0.04 * a);
+    void moverArriba() {
+        setTranslateY(getTranslateY() - 0.04 * VELOCIDAD);
     }
 
     /**
