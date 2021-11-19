@@ -11,7 +11,8 @@ import static spaceinvaders.LevelBuilder.*;
  */
 public class ShooterSprite extends Sprite {
     Bounds limites = getBoundsInParent();
-    int velocidadDisparo;
+    final int VELOCIDAD_DISPARO;
+    final int VELOCIDAD;
 
     /**
      * Una vez que se llama al contructor de Sprite,
@@ -20,17 +21,19 @@ public class ShooterSprite extends Sprite {
      * con una dirección por defecto 'w' (hacia arriba) para el JUGADOR,
      * 's' (hacia abajo) para el enemigo
      *
-     * @param l     Width and height
-     * @param x     Posición en el eje x
-     * @param y     Posición en el eje y
-     * @param tipo  Qué tipo de Sprite es
-     * @param color Color del Sprite
+     * @param l                Width and height
+     * @param x                Posición en el eje x
+     * @param y                Posición en el eje y
+     * @param tipo             Qué tipo de Sprite es
+     * @param color            Color del Sprite
+     * @param velocidad        Velocidad a la que se mueve
+     * @param velocidadDisparo Velocidad de sus disparos
      */
-    ShooterSprite(int l, int x, int y, String tipo, Color color, int velocidad, int velocidadDisparo) {
-        super(l, l, x, y, tipo, 's', color, velocidad);
-        this.velocidadDisparo=velocidadDisparo;
+    ShooterSprite(int l, int x, int y, String tipo, char direccion, Color color, int velocidad, int velocidadDisparo) {
+        super(l, l, x, y, tipo, direccion, color);
+        VELOCIDAD_DISPARO = velocidadDisparo;
+        VELOCIDAD = velocidad;
         if (tipo.equals("jugador")) { //Si es el jugador
-            super.setDireccion('w'); //Se cambia la dirección de 's' a 'w'
             //Se crea la figura mas grande del jugador (apuntador):
             GC.setFill(COLOR_APUNTADOR);
             GC.fillPolygon(new double[]{l / 2.0, l, l / 2.0, 0},
@@ -59,15 +62,15 @@ public class ShooterSprite extends Sprite {
     void disparar() {
         //Se crea un proyectil que depende de la dirección del SooterSprite
         //para dibujar su ancho y su alto
-        Sprite proyectil = new Sprite(
+        ShotSprite proyectil = new ShotSprite(
                 getDireccion() == 'w' || getDireccion() == 's' ? 5 : 20,
                 getDireccion() == 'w' || getDireccion() == 's' ? 20 : 5,
-                (int) (getTranslateX() + getWidth() / 2),//centro vertical
-                (int) (getTranslateY() + getHeight() / 2),//centro horizontal
+                (int) (getTranslateX() + getWidth() / 2.0),//centro vertical
+                (int) (getTranslateY() + getHeight() / 2.0),//centro horizontal
                 "proyectil" + TIPO,
                 getDireccion(),
                 COLOR_PROYECTIL,
-                velocidadDisparo);
+                VELOCIDAD_DISPARO);
         NODOS.add(proyectil);
     }
 
@@ -76,7 +79,7 @@ public class ShooterSprite extends Sprite {
      *
      * @param proyectil Proyectil disparado por el ShooterSprite
      */
-    void dirigir(Sprite proyectil) {
+    void dirigir(ShotSprite proyectil) {
         switch (proyectil.getDireccion()) {
             // El rumbo depende de la direccion del proyectil que se le pasó cuando se creó/disparó)
             case 'a':
@@ -171,46 +174,34 @@ public class ShooterSprite extends Sprite {
     }
 
     /**
-     * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
-     *
+     * Mueve al Sprite 0.04a pixeles a la izquierda
      */
-    @Override
     void moverIzquierda() {
-        super.moverIzquierda();
+        setTranslateX(getTranslateX() - 0.04 * VELOCIDAD);
         limites = getBoundsInParent();
     }
 
     /**
-     * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
-     *
+     * Mueve al Sprite 0.04a pixeles a la derecha
      */
-    @Override
     void moverDerecha() {
-        super.moverDerecha();
+        setTranslateX(getTranslateX() + 0.04 * VELOCIDAD);
         limites = getBoundsInParent();
     }
 
     /**
-     * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
-     *
+     * Mueve al Sprite 0.04a pixeles a la abajo
      */
-    @Override
-    void moverArriba() {
-        super.moverArriba();
-        limites = getBoundsInParent();
-    }
-
-    /**
-     * Método que sobreescribe al del nivel superior que actualiza el campo límites del ShooterSprite
-     *
-     */
-    @Override
     void moverAbajo() {
-        super.moverAbajo();
+        setTranslateY(getTranslateY() + 0.04 * VELOCIDAD);
         limites = getBoundsInParent();
     }
 
-    public void setVelocidadDisparo(int v) {
-        velocidadDisparo = v;
+    /**
+     * Mueve al Sprite 0.04a pixeles a la arriba
+     */
+    void moverArriba() {
+        setTranslateY(getTranslateY() - 0.04 * VELOCIDAD);
+        limites = getBoundsInParent();
     }
 }

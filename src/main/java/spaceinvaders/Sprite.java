@@ -16,6 +16,11 @@ public class Sprite extends Canvas {
     final GraphicsContext GC = getGraphicsContext2D();
 
     /**
+     * Color principal del Sprite
+     */
+    final Color COLOR;
+
+    /**
      * Cadena de caracteres que indica qué tipo de Sprite es el objeto
      */
     final String TIPO;
@@ -23,39 +28,20 @@ public class Sprite extends Canvas {
     /**
      * Primitivo de tipo char que indica la dirección de cada objeto en el programa
      * que puede ser 'a', 's', 'd' o 'w'
-     * (para cada proyectil determina el rumbo que tomará cuando sea disparado,
+     * (para cada ShotSprite determina el rumbo que tomará cuando sea disparado,
      * para cada ShooterSprite determina el rumbo de todos sus proyectiles en este estado)
      */
-    private char direccion;
+    char direccion;
 
-    private final int VELOCIDAD;
-
-    /**
-     * Es el contructor de todos los objetos animados en el programa. Si se trata
-     * de un proyectil, se dibuja un rectángulo redondeado del color especificado.
-     * Observar que se llama primero al constructor de la clase Canvas para especificar
-     * sus dimensiones, y los demás parámetros se establecen de modo convencional
-     *
-     * @param w         Width
-     * @param h         Height
-     * @param x         Posición en el eje x
-     * @param y         Posición en el eje y
-     * @param tipo      Qué tipo de Sprite es
-     * @param direccion Con qué dirección va a ser usado
-     * @param color     Color del Sprite
-     */
-    Sprite(int w, int h, int x, int y, String tipo, char direccion, Color color, int velocidad) {
+    Sprite(int w, int h, int x, int y, String tipo, char direccion, Color color) {
         super(w, h);
         setTranslateX(x);
         setTranslateY(y);
+        COLOR = color;
         TIPO = tipo;
-        VELOCIDAD = velocidad;
         this.direccion = direccion;
-        if (tipo.matches("proyectil.*")) {
-            GC.setFill(color);
-            GC.fillRoundRect(0, 0, w, h, 10, 10);
-        } else if (tipo.matches("campo")) {
-            GC.setFill(color);
+        if (tipo.matches("campo")) {
+            GC.setFill(COLOR);
             GC.fillRoundRect(0, 0, w, h, 20, 20);
             widthProperty().addListener((observable, oldValue, newValue) -> {
                 GC.clearRect(0, 0, oldValue.intValue(), getHeight());
@@ -66,34 +52,6 @@ public class Sprite extends Canvas {
                 GC.fillRoundRect(0, 0, getWidth(), newValue.intValue(), 20, 20);
             });//dibujar de nuevo el canvas en función de su altura
         }
-    }
-
-    /**
-     * Mueve al Sprite 0.04a pixeles a la izquierda
-     */
-    void moverIzquierda() {
-        setTranslateX(getTranslateX() - 0.04 * VELOCIDAD);
-    }
-
-    /**
-     * Mueve al Sprite 0.04a pixeles a la derecha
-     */
-    void moverDerecha() {
-        setTranslateX(getTranslateX() + 0.04 * VELOCIDAD);
-    }
-
-    /**
-     * Mueve al Sprite 0.04a pixeles a la abajo
-     */
-    void moverAbajo() {
-        setTranslateY(getTranslateY() + 0.04 * VELOCIDAD);
-    }
-
-    /**
-     * Mueve al Sprite 0.04a pixeles a la arriba
-     */
-    void moverArriba() {
-        setTranslateY(getTranslateY() - 0.04 * VELOCIDAD);
     }
 
     /**
