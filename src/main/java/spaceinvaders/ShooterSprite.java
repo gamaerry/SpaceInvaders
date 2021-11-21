@@ -3,6 +3,8 @@ package spaceinvaders;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+
 import static spaceinvaders.LevelBuilder.*;
 
 /**
@@ -11,6 +13,7 @@ import static spaceinvaders.LevelBuilder.*;
  */
 public class ShooterSprite extends Sprite {
     Bounds limites = getBoundsInParent();
+    final ArrayList<ShotSprite> PROYECTILES =new ArrayList<>();
     final int VELOCIDAD_DISPARO;
     final int VELOCIDAD;
 
@@ -72,6 +75,7 @@ public class ShooterSprite extends Sprite {
                 COLOR_PROYECTIL,
                 VELOCIDAD_DISPARO);
         NODOS.add(proyectil);
+        PROYECTILES.add(proyectil);
     }
 
     /**
@@ -84,7 +88,6 @@ public class ShooterSprite extends Sprite {
             // El rumbo depende de la direccion del proyectil que se le pasó cuando se creó/disparó)
             case 'a':
                 proyectil.moverIzquierda();
-                //(De este modo se moverán 4 pixeles a la izquierda)
                 break;
             case 's':
                 proyectil.moverAbajo();
@@ -177,7 +180,7 @@ public class ShooterSprite extends Sprite {
      * Mueve al Sprite 0.04a pixeles a la izquierda
      */
     void moverIzquierda() {
-        setTranslateX(getTranslateX() - 0.04 * VELOCIDAD);
+        setTranslateX(getTranslateX() - 0.05 * VELOCIDAD);
         limites = getBoundsInParent();
     }
 
@@ -185,7 +188,7 @@ public class ShooterSprite extends Sprite {
      * Mueve al Sprite 0.04a pixeles a la derecha
      */
     void moverDerecha() {
-        setTranslateX(getTranslateX() + 0.04 * VELOCIDAD);
+        setTranslateX(getTranslateX() + 0.05 * VELOCIDAD);
         limites = getBoundsInParent();
     }
 
@@ -193,7 +196,7 @@ public class ShooterSprite extends Sprite {
      * Mueve al Sprite 0.04a pixeles a la abajo
      */
     void moverAbajo() {
-        setTranslateY(getTranslateY() + 0.04 * VELOCIDAD);
+        setTranslateY(getTranslateY() + 0.05 * VELOCIDAD);
         limites = getBoundsInParent();
     }
 
@@ -201,7 +204,7 @@ public class ShooterSprite extends Sprite {
      * Mueve al Sprite 0.04a pixeles a la arriba
      */
     void moverArriba() {
-        setTranslateY(getTranslateY() - 0.04 * VELOCIDAD);
+        setTranslateY(getTranslateY() - 0.05 * VELOCIDAD);
         limites = getBoundsInParent();
     }
 }

@@ -35,21 +35,16 @@ public class LevelBuilder {
     /**
      * Variables para el jugador
      */
-    static final int LADO_JUGADOR = 55;
-    static int velJugador = 80,
-            velProyectilJugador = 90;
+    static final int LADO_JUGADOR = 50;
+    static int velJugador = 70,
+            velProyectilJugador = 80;
 
     /**
      * Constantes enteras para los enemigos
      */
     static final int LADO_ENEMIGO_A = 40,
-            VEL_ENEMIGO_A = 350,
-            VEL_PROYECTIL_ENEMIGO_A = 70;
-
-    /**
-     * Objeto auxiliar para los enemigos
-     */
-    static ShooterSprite nodoTmp;
+            VEL_ENEMIGO_A = 300,
+            VEL_PROYECTIL_ENEMIGO_A = 60;
 
     /**
      * Objeto auxiliar para los valores aleatorios
@@ -99,15 +94,16 @@ public class LevelBuilder {
      */
     final static ObservableList<Node> NODOS = RAIZ.getChildren();
 
-    /**
-     * Lista inmodificable de nodos
-     */
-    final static ObservableList<Node> NODOS_U = RAIZ.getChildrenUnmodifiable();
 
     /**
      * Lista de enemigos
      */
     static ArrayList<ShooterSprite> enemigos = new ArrayList<>();
+
+    /**
+     * Lista de proyectiles huerfanos (proyectiles sin ShooterSprite)
+     */
+    static ArrayList<ShotSprite> huerfanos=new ArrayList<>();
 
     /**
      * El jugador es del tipo ShooterSprite
@@ -127,7 +123,7 @@ public class LevelBuilder {
      * El campo de fuego (o area de movimiento) es del tipo Sprite
      */
     final static Sprite CAMPO_DE_FUEGO = new Sprite(
-            widthInterno, heightInterno, borde, borde, "campo", 'w', COLOR_CAMPO);
+            widthInterno, heightInterno, borde, borde, "campo", 'd', COLOR_CAMPO);
 
     /**
      * El jugador no necesita ser actualizado con el tiempo
@@ -164,6 +160,8 @@ public class LevelBuilder {
             case D:
                 jugador.setDireccion('d');
                 break;
+            case ESCAPE:
+
         }
     };
 
@@ -181,7 +179,12 @@ public class LevelBuilder {
         final AnimationTimer TEMPORIZADOR = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                actualizar();
+                actualizarJugador();
+                //actualizarSprites() se encargará de desactivar nodos:
+                actualizarSprites();
+                //NODOS.removeIf() borra de raiz (Pane) si estan desactivados:
+                NODOS.removeIf(Node::isDisable);
+                if (pasos++ > 200) pasos = 0;
             }
         };
         TEMPORIZADOR.start();
@@ -228,30 +231,30 @@ public class LevelBuilder {
     }
 
     /**
-     * Este método actualiza el juego con el tiempo
+     * Este método actualiza al jugador con el tiempo
      */
-    static void actualizar() {
+    static void actualizarJugador(){
         if (left) jugador.moverIzquierda();
         if (up) jugador.moverArriba();
         if (down) jugador.moverAbajo();
         if (right) jugador.moverDerecha();
-        //Se limita dos veces al jugador (en seguida y en recorrerSprites())
-        limitarShooter(jugador.getTranslateX(), jugador.getTranslateY(), LADO_JUGADOR, jugador);
-        recorrerSprites();
-        NODOS.removeIf(nodo -> !nodo.isVisible());
-        enemigos.removeIf(enemigo -> !enemigo.isVisible());
-        if (pasos++ > 200) pasos = 0;
+        //if (space && pasos % 15 == 0) jugador.disparar();
+        limitarShooter(LADO_JUGADOR, jugador);
     }
 
     /**
      * Recorre y actua sobre cada sprite de la RAIZ con el tiempo
      */
-    private static void recorrerSprites() {
+    private static void actualizarSprites() {
+        //ACTUALIZA enemigos y enemigo.PROYECTILES:
         enemigos.forEach(enemigo -> {
             random = Math.random();
-            limitarShooter(enemigo.getTranslateX(), enemigo.getTranslateY(), LADO_ENEMIGO_A, enemigo);
-            if (enemigo.limites.intersects(jugador.limites)) //Si intersecta con el jugador
-                jugador.setVisible(false);//muere el jugador
+            limitarShooter(LADO_ENEMIGO_A, enemigo);
+            if(enemigo.limites.intersects(jugador.limites)) {
+                huerfanos.addAll(enemigo.PROYECTILES);
+                enemigo.setDisable(true);
+                jugador.setDisable(true);
+            }
             if (pasos > 200 && random < 0.4) { //Si es tiempo de disparar y le toca por azar
                 enemigo.disparar(); // dispara
                 if (random < 0.1) enemigo.moverIzquierda();
@@ -259,42 +262,55 @@ public class LevelBuilder {
                 else if (random < 0.3) enemigo.moverAbajo();
                 else enemigo.moverDerecha();
             }
+            enemigo.PROYECTILES.forEach(proyectil -> {
+                if (proyectilFueraDelLimite(proyectil.getTranslateX(), proyectil.getTranslateY()))
+                    proyectil.setDisable(true);
+                enemigo.dirigir(proyectil); //Entonces se mueve hacia abajo
+                matarSiIntersectan(proyectil, jugador);
+            });
+            enemigo.PROYECTILES.removeIf(Node::isDisable); //borra de enemigo.PROYECTILES si no es visible
+            //Si matan a uno, la lista huerfanos se encarga de dirigir al proyectil sin shooter
         });
-        NODOS_U.stream().filter(nodo -> nodo instanceof ShotSprite).map(nodo -> (ShotSprite) nodo).forEach(proyectil -> {
-            if (proyectilFueraDelLimite(proyectil.getTranslateX(), proyectil.getTranslateY()))
-                proyectil.setVisible(false);
-            if (proyectil.TIPO.matches(".+enemigoA")) { //Si es el proyectil del enemigo
-                proyectil.moverAbajo(); //Entonces se mueve hacia abajo
-                if (proyectil.getBoundsInParent().intersects(jugador.limites)) { //Si toca al jugador
-                    jugador.setVisible(false);//muere el jugador
-                    proyectil.setVisible(false); // muere el proyectil
-                }
-            } else { //Si no es el proyectil enemigo, es el del jugador
-                jugador.dirigir(proyectil); // Entonces se mueve hacia donde se disparó
-                enemigos.forEach(enemigo -> { // Y para cada nodo...//Si el nodo es el enemigo entonces
-                    if (proyectil.getBoundsInParent().intersects(enemigo.limites)) { //si la bala y el enemigo intersectan
-                        enemigo.setVisible(false); // el enemigo muere
-                        proyectil.setVisible(false); // el proyectil muere
-                    }
-                });
+        enemigos.removeIf(Node::isDisable); //borra de enemigos si esta desactivado
+
+        //ACTUALIZA jugador.PROYECTILES:
+        jugador.PROYECTILES.forEach(proyectil -> {
+            if (proyectilFueraDelLimite(proyectil.getTranslateX(), proyectil.getTranslateY())) {
+                proyectil.setDisable(true);
             }
+            jugador.dirigir(proyectil); // Entonces se mueve hacia donde se disparó
+            enemigos.forEach(enemigo -> matarSiIntersectan(proyectil, enemigo));
         });
+        jugador.PROYECTILES.removeIf(Node::isDisable); //borra de jugador.PROYECTILES si esta desactivado
+
+        //ACTUALIZA huerfanos:
+        huerfanos.forEach(proyectil->{
+            if (proyectilFueraDelLimite(proyectil.getTranslateX(), proyectil.getTranslateY()))
+                proyectil.setDisable(true);
+            if (proyectil.getBoundsInParent().intersects(jugador.limites)) { //si la bala y el enemigo intersectan
+                jugador.setDisable(true); // el enemigo muere
+                proyectil.setDisable(true); // el proyectil muere
+            }//huerfanos no puede usar matarSiIntersectan() pues este método modifica al mismo huerfanos
+            dirigirHuerfano(proyectil);
+        });
+        huerfanos.removeIf(Node::isDisable);// borra de huerfanos si no es visible
     }
 
     /**
      * Método que mantiene al ShooterSprite dentro del area de juego
      *
-     * @param x           posición horizontal del ShooterSprite
-     * @param y           posición vertical del ShoterSprite
      * @param ladoShooter longitud del ShoterSprite
      * @param shooter     ShoterSprite a limitar
      */
-    private static void limitarShooter(double x, double y, int ladoShooter, ShooterSprite shooter) {
-        if (x < borde)
-            shooter.moverDerecha(); //Si se sale por la izquierda no necesita revisar si se sale por la derecha
-        else if (x > widthInterno + borde - ladoShooter) shooter.moverIzquierda();
-        if (y < borde) shooter.moverAbajo();//Si se sale por arriba no necesita revisar si se sale por abajo
-        else if (y > heightInterno + borde - ladoShooter) shooter.moverArriba();
+    private static void limitarShooter(int ladoShooter, ShooterSprite shooter) {
+        if (shooter.getTranslateX() < borde) //Si se sale por la izquierda no necesita revisar si se sale por la derecha
+            shooter.moverDerecha();
+        else if (shooter.getTranslateX() > widthInterno + borde - ladoShooter)
+            shooter.moverIzquierda();
+        if (shooter.getTranslateY() < borde) //Si se sale por arriba no necesita revisar si se sale por abajo
+            shooter.moverAbajo();
+        else if (shooter.getTranslateY() > heightInterno + borde - ladoShooter)
+            shooter.moverArriba();
     }
 
     /**
@@ -307,5 +323,29 @@ public class LevelBuilder {
     private static boolean proyectilFueraDelLimite(double x, double y) {
         //Esto se puede simplificar porque borde==proyectil.length
         return x < borde || x > widthInterno || y < borde || y > heightInterno;
+    }
+
+    private static void matarSiIntersectan(ShotSprite proyectil, ShooterSprite shooter) {
+        if (proyectil.getBoundsInParent().intersects(shooter.limites)) { //si la bala y el enemigo intersectan
+            huerfanos.addAll(shooter.PROYECTILES); //proyectiles del shooter quedan huerfanos
+            shooter.setDisable(true); // el shooter muere
+            proyectil.setDisable(true); // el proyectil muere
+        }
+    }
+    
+    private static void dirigirHuerfano(ShotSprite proyectil){
+        switch(proyectil.direccion){
+            case 'a':
+                proyectil.moverIzquierda();
+                break;
+            case 's':
+                proyectil.moverAbajo();
+                break;
+            case 'd':
+                proyectil.moverDerecha();
+                break;
+            default:
+                proyectil.moverArriba();
+        }
     }
 }
