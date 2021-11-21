@@ -16,7 +16,7 @@ public class App extends Application {
      */
     @Override
     public void start(Stage escenario) {
-        Scene escena = new Scene(LevelBuilder.levelContent(0));
+        Scene escena = new Scene(LevelBuilder.levelContent(1));
         escena.setOnKeyPressed(LevelBuilder.CONTROLES);
         escena.setOnKeyReleased(LevelBuilder.CONTROLES_SOLTAR);
         escenario.setScene(escena);

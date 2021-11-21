@@ -15,15 +15,13 @@ public class Sprite extends Canvas {
      */
     final GraphicsContext GC = getGraphicsContext2D();
 
+    final double VELOCIDAD;
+    final int ENEMIGO;
+
     /**
      * Color principal del Sprite
      */
     final Color COLOR;
-
-    /**
-     * Cadena de caracteres que indica qué tipo de Sprite es el objeto
-     */
-    final String TIPO;
 
     /**
      * Primitivo de tipo char que indica la dirección de cada objeto en el programa
@@ -33,42 +31,43 @@ public class Sprite extends Canvas {
      */
     char direccion;
 
-    Sprite(int w, int h, int x, int y, String tipo, char direccion, Color color) {
+    Sprite(int w, int h, double x, double y, int enemigo, Color color, int velocidad, char direccion) {
         super(w, h);
         setTranslateX(x);
         setTranslateY(y);
+        ENEMIGO = enemigo;
         COLOR = color;
-        TIPO = tipo;
+        VELOCIDAD = velocidad;
         this.direccion = direccion;
-        if (tipo.matches("campo")) {
-            GC.setFill(COLOR);
-            GC.fillRoundRect(0, 0, w, h, 20, 20);
-            widthProperty().addListener((observable, oldValue, newValue) -> {
-                GC.clearRect(0, 0, oldValue.intValue(), getHeight());
-                GC.fillRoundRect(0, 0, newValue.intValue(), getHeight(), 20, 20);
-            });//dibujar de nuevo el canvas en función de su ancho
-            heightProperty().addListener((observable, oldValue, newValue) -> {
-                GC.clearRect(0, 0, getWidth(), oldValue.intValue());
-                GC.fillRoundRect(0, 0, getWidth(), newValue.intValue(), 20, 20);
-            });//dibujar de nuevo el canvas en función de su altura
-        }
+        if(enemigo<0)
+            GC.fillRoundRect(0, 0, w, h, 10, 10);
     }
 
     /**
-     * Método setter de la propiedad direccion
-     *
-     * @param s Dirección del Sprite
+     * Mueve al Sprite 0.05*VELOCIDAD pixeles a la izquierda
      */
-    void setDireccion(char s) {
-        direccion = s;
+    void moverIzquierda() {
+        setTranslateX(getTranslateX() - 0.05 * VELOCIDAD);
     }
 
     /**
-     * Método getter de la propiedad direccion
-     *
-     * @return Valor de la propiedad direccion
+     * Mueve al Sprite 0.05*VELOCIDAD pixeles a la derecha
      */
-    char getDireccion() {
-        return direccion;
+    void moverDerecha() {
+        setTranslateX(getTranslateX() + 0.05 * VELOCIDAD);
+    }
+
+    /**
+     * Mueve al Sprite 0.05*VELOCIDAD pixeles a la abajo
+     */
+    void moverAbajo() {
+        setTranslateY(getTranslateY() + 0.05 * VELOCIDAD);
+    }
+
+    /**
+     * Mueve al Sprite 0.05*VELOCIDAD pixeles a la arriba
+     */
+    void moverArriba() {
+        setTranslateY(getTranslateY() - 0.05 * VELOCIDAD);
     }
 }
