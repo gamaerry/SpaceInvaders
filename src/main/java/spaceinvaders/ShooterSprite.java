@@ -4,7 +4,6 @@ import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 
 import static spaceinvaders.LevelBuilder.COLOR_APUNTADOR;
-import static spaceinvaders.LevelBuilder.COLOR_PROYECTIL;
 import static spaceinvaders.LevelBuilder.NODOS;
 import static spaceinvaders.LevelBuilder.PROYECTILES;
 
@@ -35,7 +34,7 @@ public class ShooterSprite extends Sprite {
     ShooterSprite(int l, int x, int y, int enemigo, Color color, int velocidad, char direccion, int velocidadDisparo) {
         super(l, l, x, y, enemigo, color, velocidad, direccion);
         VELOCIDAD_DISPARO = velocidadDisparo;
-        L =l;
+        L = l;
         if (enemigo == 0) { //Si es el jugador
             //Se crea la figura mas grande del jugador (apuntador):
             GC.setFill(COLOR_APUNTADOR);
@@ -70,8 +69,7 @@ public class ShooterSprite extends Sprite {
                 20,
                 limites.getCenterX(),//centro vertical
                 limites.getCenterY(),//centro horizontal
-                ENEMIGO * -1,
-                COLOR_PROYECTIL,
+                ENEMIGO_ID,
                 VELOCIDAD_DISPARO,
                 direccion);
         NODOS.add(proyectil);
@@ -85,8 +83,8 @@ public class ShooterSprite extends Sprite {
      * @param direccion Dirección del ShooterSprite que se configura como 'a','s','d' o 'w'
      */
     void setDireccion(char direccion) {
-        this.direccion=direccion;
-        if (ENEMIGO==0) {
+        this.direccion = direccion;
+        if (!ES_ENEMIGO) {
             //Primero se borra el contenido del Canvas
             //usando el objeto GC situado en la clase Sprite
             GC.clearRect(0, 0, L, L);

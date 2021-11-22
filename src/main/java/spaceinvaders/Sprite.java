@@ -1,8 +1,11 @@
 package spaceinvaders;
 
+import javafx.collections.ObservableList;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Transform;
 
 /**
  * Clase que sirve como base a cada objeto animado dentro del programa
@@ -10,13 +13,15 @@ import javafx.scene.paint.Color;
  * (los proyectiles, por ejemplo, son objetos Sprite)
  */
 public class Sprite extends Canvas {
+    final static Rotate ROTAR_90= new Rotate(90);
     /**
      * Objeto que sirve para manipular el objeto de tipo Canvas
      */
     final GraphicsContext GC = getGraphicsContext2D();
-
+    final ObservableList<Transform> TR=getTransforms();
     final double VELOCIDAD;
-    final int ENEMIGO;
+    final int ENEMIGO_ID;
+    final boolean ES_ENEMIGO;
 
     /**
      * Color principal del Sprite
@@ -31,16 +36,21 @@ public class Sprite extends Canvas {
      */
     char direccion;
 
-    Sprite(int w, int h, double x, double y, int enemigo, Color color, int velocidad, char direccion) {
+    Sprite(int w, int h, double x, double y, int enemigoId, Color color, int velocidad, char direccion) {
         super(w, h);
         setTranslateX(x);
         setTranslateY(y);
-        ENEMIGO = enemigo;
+        ENEMIGO_ID = enemigoId;
+        ES_ENEMIGO = ENEMIGO_ID > 0;
         COLOR = color;
         VELOCIDAD = velocidad;
         this.direccion = direccion;
-        if(enemigo<0)
-            GC.fillRoundRect(0, 0, w, h, 10, 10);
+    }
+
+    Sprite(int w, int h, double x, double y, int enemigoId, int velocidad, char direccion) { //este builder no usa el field color
+        this(w, h, x, y, enemigoId, Color.BLACK, velocidad, direccion);
+        GC.fillRoundRect(0, 0, w, h, 10, 10);
+        if (direccion == 'a' || direccion == 'd') TR.add(ROTAR_90);
     }
 
     /**

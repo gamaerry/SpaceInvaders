@@ -189,6 +189,8 @@ public class LevelBuilder {
 
     private static void establecerCampo() {
         final GraphicsContext GC = CAMPO.getGraphicsContext2D();
+        CAMPO.setTranslateX(borde);
+        CAMPO.setTranslateY(borde);
         GC.setFill(COLOR_CAMPO);
         GC.fillRoundRect(0, 0, widthInterno, heightInterno, 20, 20);
         CAMPO.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -278,10 +280,10 @@ public class LevelBuilder {
         //ACTUALIZA PROYECTILES:
         PROYECTILES.forEach(proyectil->{
             dirigirProyectil(proyectil);
-            if(proyectil.ENEMIGO==0)
-                ENEMIGOS.forEach(enemigo -> matarSiIntersectan(proyectil, enemigo));
-            else
+            if(proyectil.ES_ENEMIGO)
                 matarSiIntersectan(proyectil, JUGADOR);
+            else
+                ENEMIGOS.forEach(enemigo -> matarSiIntersectan(proyectil, enemigo));
             if (proyectilFueraDelLimite(proyectil.getTranslateX(), proyectil.getTranslateY()))
                 proyectil.setDisable(true);
         });
