@@ -6,6 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
+import static spaceinvaders.LevelBuilder.COLOR_PROYECTIL;
 
 /**
  * Clase que sirve como base a cada objeto animado dentro del programa
@@ -48,7 +49,7 @@ public class Sprite extends Canvas {
     }
 
     Sprite(int w, int h, double x, double y, int enemigoId, int velocidad, char direccion) { //este builder no usa el field color
-        this(w, h, x, y, enemigoId, Color.BLACK, velocidad, direccion);
+        this(w, h, x, y, enemigoId, COLOR_PROYECTIL, velocidad, direccion);
         GC.fillRoundRect(0, 0, w, h, 10, 10);
         if (direccion == 'a' || direccion == 'd') TR.add(ROTAR_90);
     }

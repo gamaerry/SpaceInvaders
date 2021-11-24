@@ -67,8 +67,8 @@ public class ShooterSprite extends Sprite {
         Sprite proyectil = new Sprite(
                 5,
                 20,
-                limites.getCenterX(),//centro vertical
-                limites.getCenterY(),//centro horizontal
+                limites.getCenterX()-2.5,//centro vertical
+                limites.getCenterY()-2.5,//centro horizontal
                 ENEMIGO_ID,
                 VELOCIDAD_DISPARO,
                 direccion);
